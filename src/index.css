@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --glass-bg-1: rgba(255, 255, 255, 0.08);
+  --glass-bg-2: rgba(255, 255, 255, 0.12);
+  --glass-bg-3: rgba(255, 255, 255, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --surface-solid: #131924;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  min-height: 100vh;
+  background: radial-gradient(circle at 20% 15%, rgba(66, 139, 202, 0.2), transparent 35%),
+    radial-gradient(circle at 80% 12%, rgba(176, 78, 255, 0.16), transparent 30%),
+    radial-gradient(circle at 50% 90%, rgba(63, 196, 180, 0.12), transparent 30%),
+    #090d15;
+  color: #e5e7eb;
+}
+
+.glass {
+  background: var(--glass-bg-2);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(255,255,255,.14), transparent 24%);
+}
+
+@media (prefers-reduced-transparency: reduce), (not (backdrop-filter: blur(2px))) {
+  .glass {
+    background: var(--surface-solid);
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
