@@ -26,3 +26,7 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+# Local agent and Supabase CLI artifacts
+.claude/
+supabase/.temp/
