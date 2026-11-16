@@ -7,11 +7,11 @@ type Props = PropsWithChildren<{
 }>
 
 const levelStyles = {
-  1: 'bg-[var(--glass-bg-1)] shadow-glass1',
-  2: 'bg-[var(--glass-bg-2)] shadow-glass2',
-  3: 'bg-[var(--glass-bg-3)] shadow-glass3',
+  1: 'glass-subtle shadow-glass1',
+  2: 'glass-panel shadow-glass2',
+  3: 'glass-elevated shadow-glass3',
 }
 
 export const GlassCard = ({ level = 2, className, children }: Props) => (
-  <section className={clsx('glass relative rounded-2xl border border-white/20 p-4 text-slate-100', levelStyles[level], className)}>{children}</section>
+  <section className={clsx('glass rounded-2xl p-5 text-text-primary', levelStyles[level], className)}>{children}</section>
 )
