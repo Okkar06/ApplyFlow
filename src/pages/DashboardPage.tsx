@@ -21,7 +21,7 @@ export const DashboardPage = () => (
     <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
       {kpis.map(([label, value]) => (
         <GlassCard key={label} level={1} className="text-center">
-          <p className="text-xs text-slate-300">{label}</p>
+          <p className="text-xs text-text-secondary">{label}</p>
           <p className="text-2xl font-semibold tabular-nums">{value}</p>
         </GlassCard>
       ))}
@@ -33,14 +33,14 @@ export const DashboardPage = () => (
         <div className="h-64">
           <ResponsiveContainer>
             <BarChart data={weekly}>
-              <CartesianGrid stroke="rgba(255,255,255,0.1)" vertical={false} />
-              <XAxis dataKey="week" stroke="rgba(255,255,255,0.7)" />
-              <Tooltip />
+              <CartesianGrid stroke="rgb(var(--color-border) / 0.2)" vertical={false} />
+              <XAxis dataKey="week" stroke="rgb(var(--color-text-muted))" />
+              <Tooltip contentStyle={{ backgroundColor: 'rgb(var(--color-surface-solid))', border: '1px solid rgb(var(--color-border) / 0.3)', color: 'rgb(var(--color-text-primary))' }} />
               <Bar dataKey="applications" fill="url(#grad)" radius={[8, 8, 0, 0]} />
               <defs>
                 <linearGradient id="grad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#6ee7ff" />
-                  <stop offset="100%" stopColor="#8b5cf6" />
+                  <stop offset="0%" stopColor="rgb(var(--color-accent))" />
+                  <stop offset="100%" stopColor="rgb(var(--mesh-violet))" />
                 </linearGradient>
               </defs>
             </BarChart>

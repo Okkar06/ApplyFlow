@@ -13,5 +13,5 @@ const levelStyles = {
 }
 
 export const GlassCard = ({ level = 2, className, children }: Props) => (
-  <section className={clsx('glass rounded-2xl p-5 text-text-primary', levelStyles[level], className)}>{children}</section>
+  <section className={clsx('glass p-5 text-text-primary', levelStyles[level], className)}>{children}</section>
 )

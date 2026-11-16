@@ -47,7 +47,7 @@ export const App = () => {
     }
   }, [])
 
-  if (loading) return <main className="p-6 text-sm text-slate-300">Loading...</main>
+  if (loading) return <main className="p-6 text-sm text-text-secondary">Loading...</main>
   if (!session) return <AuthPage />
   return <RouterProvider router={router} />
 }
