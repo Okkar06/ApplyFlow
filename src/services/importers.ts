@@ -16,4 +16,4 @@ export class AiUrlImporter implements JobImporter {
   }
 }
 
-export const FEATURE_AI_IMPORT = import.meta.env.FEATURE_AI_IMPORT === 'true'
+export const FEATURE_AI_IMPORT = import.meta.env.VITE_FEATURE_AI_IMPORT === 'true'

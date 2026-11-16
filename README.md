@@ -23,7 +23,7 @@ Copy `.env.example` to `.env` and fill values:
 - `VITE_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY` (worker/tests only; never client)
 - `SUPABASE_ACCESS_TOKEN`
-- `FEATURE_AI_IMPORT=false`
+- `VITE_FEATURE_AI_IMPORT=false`
 
 ## Security model
 - CSP via meta tag in `index.html` with `default-src 'self'` and strict `connect-src`/`img-src` for Supabase.
@@ -36,6 +36,7 @@ Copy `.env.example` to `.env` and fill values:
 
 ## Database
 - Migration: `supabase/migrations/2026102601_initial.sql`
+- Capture foundation migration: `supabase/migrations/2026111601_capture_foundation.sql`
 - Seed: `supabase/seed.sql`
 - v2 parser placeholder docs: `supabase/functions/parse-job/README.md`
 
@@ -62,7 +63,10 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Shared schema: `src/schemas/jobInput.ts`
 - Import interface + implementations: `src/services/importers.ts`
 - `AiUrlImporter` currently throws `not enabled`
-- Add Job page includes URL input and disabled AI autofill button behind `FEATURE_AI_IMPORT`
+- Add Job page includes URL input and disabled AI autofill button behind `VITE_FEATURE_AI_IMPORT`
+- Email/password authentication protects the app and all browser writes use the Supabase anon key with RLS.
+- Resume versions are stored in the private `resumes` bucket and linked from `jobs.resume_version_id`.
+- Job saves canonicalize source URLs and reject duplicate active URLs per user.
 
 ## Visual direction proposals (Phase 1 ASK)
 1. **Aurora Mist**: brighter indigo/teal glow, softer card borders, more depth on KPI cards.

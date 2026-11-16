@@ -6,7 +6,7 @@ import './index.css'
 
 if (window.top !== window.self) {
   try {
-    window.top!.location = window.self.location
+    window.top!.location.replace(window.self.location.href)
   } catch {
     window.location.replace(window.location.href)
   }

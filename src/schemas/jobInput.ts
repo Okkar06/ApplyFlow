@@ -16,18 +16,22 @@ export const JobInput = z
     appliedDate: z.string().optional(),
     deadline: z.string().optional(),
     sourceUrl: z.string().trim().max(1024).optional().refine(validateExternalUrl, 'URL must use https/http'),
+    canonicalUrl: z.string().trim().max(1024).optional().refine(validateExternalUrl, 'URL must use https/http'),
     source: z.enum(JOB_SOURCES).default('manual'),
     importStatus: z.enum(IMPORT_STATUSES).default('none'),
     importError: z.string().max(2000).optional(),
-    rawExtraction: z.record(z.unknown()).nullable().optional(),
-    fieldProvenance: z.record(z.object({ source: z.enum(['manual', 'ai']), confidence: z.number().min(0).max(1).optional() })).nullable().optional(),
+    jobDescription: z.string().max(50000).optional(),
+    requirements: z.array(z.string().trim().min(1).max(120)).default([]),
+    rawExtraction: z.record(z.string(), z.unknown()).nullable().optional(),
+    fieldProvenance: z.record(z.string(), z.object({ source: z.enum(['manual', 'ai']), confidence: z.number().min(0).max(1).optional() })).nullable().optional(),
     priority: z.coerce.number().int().min(1).max(5).default(3),
     relevanceManual: z.coerce.number().int().min(1).max(5).optional(),
     notes: z.string().max(5000).optional(),
     skills: z.array(z.string().trim().min(1).max(40)).default([]),
+    resumeVersionId: z.string().uuid().optional(),
   })
   .superRefine((value, ctx) => {
-    if (value.salaryMin && value.salaryMax && value.salaryMin > value.salaryMax) {
+    if (value.salaryMin !== undefined && value.salaryMax !== undefined && value.salaryMin > value.salaryMax) {
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'salaryMin must be <= salaryMax', path: ['salaryMin'] })
     }
   })

@@ -1,7 +1,7 @@
 create extension if not exists "pgcrypto";
 
 create type job_status as enum ('saved', 'applied', 'interview', 'offer', 'rejected', 'ghosted');
-create type job_source as enum ('manual', 'linkedin', 'jobstreet', 'indeed', 'mcf', 'company_site', 'other');
+create type job_source as enum ('manual', 'linkedin', 'jobstreet', 'indeed', 'glassdoor', 'greenhouse', 'lever', 'workday', 'mcf', 'company_site', 'other');
 create type import_status as enum ('none', 'pending', 'processing', 'needs_review', 'done', 'failed');
 
 create table if not exists public.profiles (
