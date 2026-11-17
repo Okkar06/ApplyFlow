@@ -12,6 +12,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc -b",
+    "extension:build": "vite build --config extension/vite.config.ts",
+    "extension:typecheck": "tsc -p extension/tsconfig.json --noEmit",
     "audit": "npm audit --audit-level=moderate"
   },
   "dependencies": {
@@ -21,6 +23,7 @@
     "@tanstack/react-query": "^5.90.5",
     "@tanstack/react-table": "^8.21.3",
     "clsx": "^2.1.1",
+    "lucide-react": "^1.73.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.66.0",
