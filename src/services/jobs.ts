@@ -20,6 +20,7 @@ type JobRow = {
   canonical_url: string | null
   source: Job['source']
   import_status: Job['importStatus']
+  needs_review: boolean
   import_error: string | null
   job_description: string | null
   requirements: string[]
@@ -49,6 +50,7 @@ const toJob = (row: JobRow): Job => ({
   canonicalUrl: row.canonical_url ?? undefined,
   source: row.source,
   importStatus: row.import_status,
+  needsReview: row.needs_review,
   importError: row.import_error ?? undefined,
   jobDescription: row.job_description ?? undefined,
   requirements: row.requirements,
@@ -77,6 +79,7 @@ const toRow = (input: JobInput) => ({
   canonical_url: input.canonicalUrl ?? canonicalizeUrl(input.sourceUrl) ?? null,
   source: input.source,
   import_status: input.importStatus,
+  needs_review: input.needsReview,
   import_error: input.importError ?? null,
   job_description: input.jobDescription ?? null,
   requirements: input.requirements,
@@ -113,5 +116,30 @@ export const createJob = async (input: JobInput): Promise<Job> => {
     if (error.code === '23505') throw new Error('This job has already been saved.')
     throw new Error(`Unable to save job: ${error.message}`)
   }
+
   return toJob(data as JobRow)
+}
+
+export const updateJob = async (id: string, input: JobInput): Promise<Job> => {
+  const { data, error } = await supabase.from('jobs').update(toRow(input)).eq('id', id).select('*').single()
+  if (error) throw new Error(`Unable to update job: ${error.message}`)
+  return toJob(data as JobRow)
+}
+
+export const updateJobReviewState = async (id: string, needsReview: boolean): Promise<Job> => {
+  const { data, error } = await supabase
+    .from('jobs')
+    .update({ needs_review: needsReview, import_status: needsReview ? 'needs_review' : 'done' })
+    .eq('id', id)
+    .select('*')
+    .single()
+  if (error) throw new Error(`Unable to update review state: ${error.message}`)
+  return toJob(data as JobRow)
+}
+
+export const markJobFollowedUp = async (job: Job): Promise<void> => {
+  const followUpNote = `Followed up on ${new Date().toISOString().slice(0, 10)}`
+  const notes = [job.notes?.trim(), followUpNote].filter(Boolean).join('\n')
+  const { error } = await supabase.from('jobs').update({ notes }).eq('id', job.id)
+  if (error) throw new Error(`Unable to mark job as followed up: ${error.message}`)
 }
