@@ -28,6 +28,18 @@
   --shadow-elevated: 0 24px 56px rgb(51 65 85 / 0.22), inset 0 1px 0 rgb(255 255 255 / 0.98);
   --mesh-violet: 139 92 246;
   --mesh-teal: 13 148 136;
+  --color-role-one: 79 70 229;
+  --color-role-two: 147 51 234;
+  --color-role-three: 219 39 119;
+  --color-role-four: 234 88 12;
+  --color-role-five: 124 58 237;
+  --color-role-six: 8 145 178;
+  --color-role-other: 100 116 139;
+  --color-calendar-interview: 79 70 229;
+  --color-calendar-follow-up: 234 88 12;
+  --color-calendar-application: 8 145 178;
+  --color-calendar-offer: 147 51 234;
+  --color-calendar-other: 100 116 139;
 }
 
 html[data-theme='dark'] {
@@ -55,6 +67,18 @@ html[data-theme='dark'] {
   --shadow-elevated: 0 24px 56px rgb(2 6 23 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.12);
   --mesh-violet: 139 92 246;
   --mesh-teal: 13 148 136;
+  --color-role-one: 129 140 248;
+  --color-role-two: 192 132 252;
+  --color-role-three: 244 114 182;
+  --color-role-four: 251 146 60;
+  --color-role-five: 167 139 250;
+  --color-role-six: 34 211 238;
+  --color-role-other: 148 163 184;
+  --color-calendar-interview: 129 140 248;
+  --color-calendar-follow-up: 251 146 60;
+  --color-calendar-application: 34 211 238;
+  --color-calendar-offer: 192 132 252;
+  --color-calendar-other: 148 163 184;
 }
 
 * {

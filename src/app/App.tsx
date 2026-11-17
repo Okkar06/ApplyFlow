@@ -2,8 +2,12 @@ import { useEffect, useState } from 'react'
 import { createHashRouter, RouterProvider } from 'react-router-dom'
 import { AppShell } from '../components/layout/AppShell'
 import { DashboardPage } from '../pages/DashboardPage'
+import { StatisticsPage } from '../pages/StatisticsPage'
+import { CalendarPage } from '../pages/CalendarPage'
 import { JobsPage } from '../pages/JobsPage'
 import { JobFormPage } from '../pages/JobFormPage'
+import { JobDetailPage } from '../pages/JobDetailPage'
+import { NeedsReviewPage } from '../pages/NeedsReviewPage'
 import { ContactsPage } from '../pages/ContactsPage'
 import { DocumentsPage } from '../pages/DocumentsPage'
 import { ProfilePage } from '../pages/ProfilePage'
@@ -17,9 +21,13 @@ const router = createHashRouter([
     element: <AppShell />,
     children: [
       { index: true, element: <DashboardPage /> },
+      { path: 'statistics', element: <StatisticsPage /> },
+      { path: 'calendar', element: <CalendarPage /> },
       { path: 'jobs', element: <JobsPage /> },
       { path: 'jobs/new', element: <JobFormPage /> },
       { path: 'jobs/:id/edit', element: <JobFormPage /> },
+      { path: 'jobs/:id', element: <JobDetailPage /> },
+      { path: 'needs-review', element: <NeedsReviewPage /> },
       { path: 'contacts', element: <ContactsPage /> },
       { path: 'documents', element: <DocumentsPage /> },
       { path: 'profile', element: <ProfilePage /> },
