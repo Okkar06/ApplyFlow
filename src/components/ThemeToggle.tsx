@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Moon, Sun } from 'lucide-react'
 
 type Theme = 'light' | 'dark'
 
@@ -19,9 +20,10 @@ export const ThemeToggle = () => {
       type="button"
       onClick={toggle}
       aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
-      className="rounded-xl border border-border/40 bg-surface-panel/70 px-3 py-2 text-sm text-text-secondary shadow-glass1 hover:bg-surface-elevated"
+      title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+      className="grid size-10 place-items-center rounded-xl border border-border/40 bg-surface-panel/70 text-text-secondary shadow-glass1 hover:bg-surface-elevated hover:text-text-primary"
     >
-      {theme === 'dark' ? 'Light mode' : 'Dark mode'}
+      {theme === 'dark' ? <Sun size={18} aria-hidden="true" /> : <Moon size={18} aria-hidden="true" />}
     </button>
   )
 }

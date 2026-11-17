@@ -24,6 +24,11 @@ export default {
         offer: 'rgb(var(--color-status-offer) / <alpha-value>)',
         rejected: 'rgb(var(--color-status-rejected) / <alpha-value>)',
         ghosted: 'rgb(var(--color-status-ghosted) / <alpha-value>)',
+        'calendar-interview': 'rgb(var(--color-calendar-interview) / <alpha-value>)',
+        'calendar-follow-up': 'rgb(var(--color-calendar-follow-up) / <alpha-value>)',
+        'calendar-application': 'rgb(var(--color-calendar-application) / <alpha-value>)',
+        'calendar-offer': 'rgb(var(--color-calendar-offer) / <alpha-value>)',
+        'calendar-other': 'rgb(var(--color-calendar-other) / <alpha-value>)',
       },
       boxShadow: {
         glass1: 'var(--shadow-subtle)',

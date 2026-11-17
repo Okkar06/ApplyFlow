@@ -24,6 +24,7 @@ export type Job = {
   sourceUrl?: string
   canonicalUrl?: string
   importStatus: ImportStatus
+  needsReview?: boolean
   importError?: string
   jobDescription?: string
   requirements: string[]

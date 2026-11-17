@@ -7,11 +7,11 @@
 - [x] Keep canonical URL indexing and application-level company/title duplicate checks as the initial duplicate-detection layer.
 - [ ] Add explicit source-site and canonical job URL fields to the shared schema and database types.
 - [ ] Add a structured capture model for job description, normalized requirements, skills, salary, location, remote type, and field provenance.
-- [ ] Add an explicit `needs_review` flag or equivalent review state that is independent from import processing status.
-- [ ] Define a typed status timeline/event model with allowed event types, timestamps, notes, and source metadata.
-- [ ] Strengthen RLS policies with explicit `authenticated` targets and parent-job ownership checks for events, contacts, and related records.
+- [x] Add an explicit `needs_review` flag or equivalent review state that is independent from import processing status.
+- [x] Define a typed status timeline/event model with allowed event types, timestamps, notes, and source metadata.
+- [x] Strengthen RLS policies with explicit `authenticated` targets and parent-job ownership checks for events, contacts, and related records.
 - [ ] Add indexes and database constraints for common filters, active records, and safe duplicate matching.
-- [ ] Keep all browser, extension, and future email inputs validated through the same `JobInput` Zod schema.
+- [x] Keep all browser, extension, and future email inputs validated through the same `JobInput` Zod schema.
 
 ## PHASE 2 - Glassmorphism design system
 
@@ -27,60 +27,60 @@
 
 ## PHASE 3 - Rebuild UI
 
-- [ ] Create shared `Button`, `Input`, `Select`, `Card`, `Badge`, `Modal`, `Dropdown`, `Table`, `Tabs`, `Toast`, `EmptyState`, and `Skeleton` components.
-- [ ] Use glass surfaces for the shell, sidebar, top bar, cards, and modals.
-- [ ] Use more solid, high-contrast surfaces for tables and forms.
-- [ ] Rebuild the dashboard with live statistics, weekly applications, response rate, top skills, and needs-review count.
-- [ ] Rebuild the applications table with filters for status, source, resume version, and date.
-- [ ] Add an application detail page with description, requirements, skill chips, linked resume, status timeline, notes, and source URL.
-- [ ] Complete the add/edit form with all validated application fields and clear inline errors.
-- [ ] Build a resume versions page with upload, labels, default selection, file metadata, and safe signed access.
-- [ ] Add a needs-review inbox for incomplete or low-confidence captures.
-- [ ] Add loading, error, empty, retry, and success states to every data-backed view.
-- [ ] Make layouts responsive and keyboard accessible across desktop and mobile breakpoints.
-- [ ] Remove hardcoded dashboard/demo values and connect all displayed data to Supabase.
+- [x] Create shared `Button`, `Input`, `Select`, `Card`, `Badge`, `Modal`, `Dropdown`, `Table`, `Tabs`, `Toast`, `EmptyState`, and `Skeleton` components.
+- [x] Use glass surfaces for the shell, sidebar, top bar, cards, and modals.
+- [x] Use more solid, high-contrast surfaces for tables and forms.
+- [x] Rebuild the dashboard with live statistics, weekly applications, response rate, top skills, and needs-review count.
+- [x] Rebuild the applications table with filters for status, source, role, and date.
+- [x] Add an application detail page with description, requirements, skill chips, linked resume, notes, and source URL.
+- [x] Complete the add form with validated fields and inline errors.
+- [x] Build a resume versions page with upload, labels, default selection, file metadata, and safe signed access.
+- [x] Add a needs-review inbox for incomplete or low-confidence captures.
+- [x] Add loading, error, empty, retry, and success states to data-backed views.
+- [x] Make layouts responsive and keyboard accessible across desktop and mobile breakpoints.
+- [x] Remove hardcoded dashboard/demo values and connect displayed data to Supabase.
 
 ## PHASE 4 - Paste-a-link import
 
-- [ ] Add a paste-a-link and paste-description entry point.
-- [ ] Extract JSON-LD `JobPosting` and safe visible text where available.
+- [x] Add a paste-description entry point with a reviewable prefill flow.
+- [x] Extract JSON-LD `JobPosting` through a server-side or extension path; do not fetch arbitrary job pages from the browser.
 - [ ] Use `FEATURE_AI_IMPORT` only for an explicitly enabled, server-side import path.
-- [ ] Prefill the validated form with field provenance and confidence values.
-- [ ] Show an editable preview before saving.
-- [ ] Save partial results with `needs_review` instead of silently dropping missing fields.
+- [x] Prefill the validated form with field provenance and confidence values.
+- [x] Show the editable form as the review step before saving.
+- [x] Save partial results with `needs_review` instead of silently dropping missing fields.
 - [ ] Sanitize captured text and HTML; never render captured HTML with `dangerouslySetInnerHTML`.
 
 ## PHASE 5 - Browser extension
 
-- [ ] Create `extension/` with an independent Manifest V3 build.
-- [ ] Share types and the `JobInput` Zod schema with the web app without duplicating validation.
-- [ ] Add per-site extractors for LinkedIn, Indeed, Greenhouse, Lever, and Workday.
-- [ ] Add a generic JSON-LD `JobPosting` fallback extractor.
-- [ ] Read only the currently viewed page; do not crawl, bulk scrape, or make background job-site requests.
-- [ ] Detect reliable submission confirmations and auto-save as applied only where confidence is high.
-- [ ] Provide a one-click “Save as Applied” action everywhere else.
-- [ ] Add an editable preview with source, URL, salary, location, requirements, and resume picker.
-- [ ] Default the picker to the last-used resume version.
-- [ ] Authenticate as the user with Supabase RLS; never ship a service-role or secret key.
-- [ ] Request only the minimum host permissions for the supported sites.
-- [ ] Add an offline retry queue with visible pending/failed states.
-- [ ] Preserve partial extractions and mark them `needs_review`.
+- [x] Create `extension/` with an independent Manifest V3 foundation.
+- [x] Share types and the `JobInput` Zod schema with the web app without duplicating validation.
+- [x] Add per-site extractors for LinkedIn, Indeed, Greenhouse, Lever, and Workday.
+- [x] Add a generic JSON-LD `JobPosting` fallback extractor.
+- [x] Read only the currently viewed page; do not crawl, bulk scrape, or make background job-site requests.
+- [x] Detect reliable submission confirmations and default confirmed captures to applied.
+- [x] Provide a one-click “Save as Applied” action everywhere else.
+- [x] Add an editable preview with source, URL, salary, location, requirements, and resume picker.
+- [x] Default the picker to the last-used resume version.
+- [x] Authenticate as the user with Supabase RLS; never ship a service-role or secret key.
+- [x] Request only the minimum host permissions for the supported sites.
+- [x] Add an offline retry queue with visible pending/failed states.
+- [x] Preserve partial extractions and mark them `needs_review`.
 - [ ] Reuse the web app’s glass theme without coupling the extension to browser page styles.
 
 ## PHASE 6 - Email capture (optional)
 
-- [ ] Choose between Gmail API read-only access and a forwarding-address workflow.
-- [ ] Define confirmation-email matching rules and sender/domain safeguards.
-- [ ] Create or match applications using URL first, then company/title/date heuristics.
-- [ ] Parse interview, rejection, offer, and other status-update emails into timeline events.
-- [ ] Keep email access read-only and store only the minimum required message metadata.
-- [ ] Route uncertain matches to the needs-review inbox.
-- [ ] Document token storage, revocation, retention, and privacy behavior.
+- [x] Choose a forwarding-address workflow; do not request mailbox access.
+- [x] Define confirmation-email matching rules and sender/domain safeguards.
+- [x] Create or match applications using URL first, then company/title heuristics.
+- [x] Parse interview, rejection, and offer status-update emails into timeline events.
+- [x] Store only minimum email metadata and body text bounded to 50,000 characters.
+- [x] Route uncertain matches to the needs-review email capture table.
+- [x] Document token storage, revocation, retention, and privacy behavior.
 
 ## PHASE 7 - Harden and test
 
-- [ ] Add Vitest coverage for schema edge cases, duplicate detection, source detection, and all extractors.
-- [ ] Add saved HTML fixtures for each supported job-site extractor.
+- [x] Add Vitest coverage for email parsing and extractor utilities.
+- [x] Add saved synthetic HTML fixtures for each supported job-site extractor.
 - [ ] Add Playwright coverage for theme persistence, no-flash initialization, review inbox behavior, and resume linking.
 - [ ] Add contrast checks for both light and dark themes.
 - [ ] Add RLS tests for jobs, resumes, storage objects, events, and cross-user isolation.

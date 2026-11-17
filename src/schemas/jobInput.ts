@@ -19,6 +19,7 @@ export const JobInput = z
     canonicalUrl: z.string().trim().max(1024).optional().refine(validateExternalUrl, 'URL must use https/http'),
     source: z.enum(JOB_SOURCES).default('manual'),
     importStatus: z.enum(IMPORT_STATUSES).default('none'),
+    needsReview: z.boolean().default(false),
     importError: z.string().max(2000).optional(),
     jobDescription: z.string().max(50000).optional(),
     requirements: z.array(z.string().trim().min(1).max(120)).default([]),

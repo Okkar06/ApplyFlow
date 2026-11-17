@@ -55,6 +55,17 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ['dist', 'node_modules', 'coverage', 'playwright-report'],
+    files: ['extension/**/*.js'],
+    languageOptions: {
+      globals: {
+        chrome: 'readonly',
+        document: 'readonly',
+        location: 'readonly',
+        window: 'readonly',
+      },
+    },
+  },
+  {
+    ignores: ['dist', '**/dist/**', 'node_modules', 'coverage', 'playwright-report'],
   },
 )
