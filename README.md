@@ -83,10 +83,10 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Extractor fixtures live under `extension/fixtures/` and are tested without network access using `npm test -- --run extension/siteExtractors.test.ts extension/extractorUtils.test.ts`.
 
 ## Visual direction
-**Aurora Mist** was chosen (Nebula Slate was the alternative): brighter indigo/teal glow, softer card borders, and more depth on KPI cards.
+**Nebula Slate** (on branch `feat/nebula-slate`; Aurora Mist is the alternative on `feat/aurora-mist`): darker neutral base, sharper contrast on tables and forms, restrained glow.
 
-- Tokens live in `src/index.css` (`--mesh-indigo`, `--mesh-teal`, `--mesh-strength`, `--border-alpha`, `--glow-kpi`) with light and dark values.
-- Dashboard KPI cards use the `.glass-kpi` class for the extra glow and the indigo-to-teal top edge.
+- Tokens live in `src/index.css`: `--mesh-strength`, `--border-alpha`, `--control-border-alpha`, `--table-rule-alpha`, `--table-head-bg`, `--kpi-edge`, `--glow-kpi`, with light and dark values.
+- Form controls use the `.control` class and tables use `.data-table`, so both designs differ only in token values.
 - Text colour tokens are unchanged; light/dark contrast checks are still outstanding.
 
 ## Remaining ASK decisions
