@@ -122,7 +122,7 @@ type StatCardProps = {
 }
 
 const StatCard = ({ label, value, trend, icon: Icon, positive = true }: StatCardProps) => (
-  <GlassCard level={1} className={cardClass}>
+  <GlassCard level={1} className={`glass-kpi ${cardClass}`}>
     <div className="flex items-start justify-between gap-3">
       <p className="text-sm font-medium text-text-secondary">{label}</p>
       <Icon size={19} className="text-accent-strong" aria-hidden="true" />

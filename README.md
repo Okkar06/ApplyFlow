@@ -82,11 +82,12 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Email forwarding stores bounded sender, subject, body, and parsed metadata. Messages match by URL first, then company/title; uncertain messages remain in `email_captures` for review. Configure the provider webhook and Edge Function secret before enabling ingestion.
 - Extractor fixtures live under `extension/fixtures/` and are tested without network access using `npm test -- --run extension/siteExtractors.test.ts extension/extractorUtils.test.ts`.
 
-## Visual direction proposals (Phase 1 ASK)
-1. **Aurora Mist**: brighter indigo/teal glow, softer card borders, more depth on KPI cards.
-2. **Nebula Slate**: darker neutral base, sharper contrast tables/forms, restrained glow.
+## Visual direction
+**Aurora Mist** was chosen (Nebula Slate was the alternative): brighter indigo/teal glow, softer card borders, and more depth on KPI cards.
 
-Pick one to finalize tokens and component polish.
+- Tokens live in `src/index.css` (`--mesh-indigo`, `--mesh-teal`, `--mesh-strength`, `--border-alpha`, `--glow-kpi`) with light and dark values.
+- Dashboard KPI cards use the `.glass-kpi` class for the extra glow and the indigo-to-teal top edge.
+- Text colour tokens are unchanged; light/dark contrast checks are still outstanding.
 
 ## Remaining ASK decisions
 - Auth method preference for v1 login: **email magic link** or **GitHub OAuth**?
