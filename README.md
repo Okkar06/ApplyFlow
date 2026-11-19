@@ -83,7 +83,7 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Extractor fixtures live under `extension/fixtures/` and are tested without network access using `npm test -- --run extension/siteExtractors.test.ts extension/extractorUtils.test.ts`.
 
 ## Visual direction
-**Nebula Slate** (on branch `feat/nebula-slate`; Aurora Mist is the alternative on `feat/aurora-mist`): darker neutral base, sharper contrast on tables and forms, restrained glow.
+**Nebula Slate** was chosen over Aurora Mist (still on branch `feat/aurora-mist` for reference): darker neutral base, sharper contrast on tables and forms, restrained glow.
 
 - Tokens live in `src/index.css`: `--mesh-strength`, `--border-alpha`, `--control-border-alpha`, `--table-rule-alpha`, `--table-head-bg`, `--kpi-edge`, `--glow-kpi`, with light and dark values.
 - Form controls use the `.control` class and tables use `.data-table`, so both designs differ only in token values.
