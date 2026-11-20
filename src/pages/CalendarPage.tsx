@@ -6,6 +6,7 @@ import { AlertCircle, CalendarDays, Check, ChevronLeft, ChevronRight, Clock3, Ex
 import { useSearchParams } from 'react-router-dom'
 import { Button, Card, EmptyState, Input, Modal, Select, Skeleton, Textarea } from '../components/ui'
 import { CalendarEventInput, type CalendarEventInput as CalendarEventInputType } from '../schemas/calendarEvent'
+import type { z } from 'zod'
 import { completeCalendarEvent, createCalendarEvent, deleteCalendarEvent, listCalendarEvents, updateCalendarEvent } from '../services/calendarEvents'
 import { listJobs } from '../services/jobs'
 import { CALENDAR_EVENT_TYPES, type CalendarEvent, type CalendarEventType } from '../types/calendar'
@@ -40,7 +41,7 @@ const defaultStart = (date: Date) => {
 }
 
 const EventForm = ({ jobs, event, initialDate, initialJobId, onSave, onClose, saving }: { jobs: Awaited<ReturnType<typeof listJobs>>; event?: CalendarEvent; initialDate?: Date; initialJobId?: string; onSave: (value: CalendarEventInputType) => void; onClose: () => void; saving: boolean }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm<CalendarEventInputType>({
+  const { register, handleSubmit, formState: { errors } } = useForm<z.input<typeof CalendarEventInput>, unknown, CalendarEventInputType>({
     resolver: zodResolver(CalendarEventInput),
     defaultValues: event ? {
       jobId: event.jobId,
