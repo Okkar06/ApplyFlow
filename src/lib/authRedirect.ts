@@ -3,7 +3,7 @@
 
 const CALLBACK_PARAMS = ['code', 'error', 'error_code', 'error_description', 'state']
 
-/** e.g. https://okkar06.github.io/ApplyFlow/ or http://localhost:5173/ApplyFlow/ */
+/** e.g. https://<app>.vercel.app/ or http://localhost:5173/ */
 export const authRedirectUrl = () => new URL(import.meta.env.BASE_URL, window.location.origin).toString()
 
 /**

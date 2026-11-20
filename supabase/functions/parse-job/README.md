@@ -8,7 +8,7 @@ It fetches a public job page, reads its `JobPosting` JSON-LD, and returns fields
 
 - Off unless the function secret `FEATURE_AI_IMPORT=true` (returns 404 otherwise).
 - Signed-in users only: the caller's JWT is checked with `auth.getUser()`.
-- CORS only for origins listed in `ALLOWED_ORIGINS` (comma-separated, e.g. `https://okkar06.github.io`).
+- CORS only for origins listed in `ALLOWED_ORIGINS` (comma-separated, e.g. `https://applyflow.vercel.app`).
 - URLs: https only, port 443, no credentials, no localhost / single-label / `.local` / `.internal` hosts, no private or reserved IP literals.
 - DNS: every A/AAAA answer must be public (blocks 10/8, 172.16/12, 192.168/16, 169.254/16 incl. cloud metadata, CGNAT, IPv6 ULA/link-local, IPv4-mapped and NAT64 forms).
 - Redirects are followed manually (max 3) and every hop is re-checked.
@@ -25,6 +25,6 @@ Rules live in `guards.ts` and are covered by `guards.test.ts`.
 ## Enabling
 
 ```sh
-npx supabase secrets set FEATURE_AI_IMPORT=true ALLOWED_ORIGINS=https://okkar06.github.io --project-ref <ref>
+npx supabase secrets set FEATURE_AI_IMPORT=true ALLOWED_ORIGINS=https://applyflow.vercel.app --project-ref <ref>
 npx supabase functions deploy parse-job --project-ref <ref>
 ```
