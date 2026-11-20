@@ -6,7 +6,7 @@
 // Needs VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (or SUPABASE_PUBLISHABLE_KEY)
 // and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY). The secret key is used
 // only here, server-side, to create and delete the test users.
-import { randomUUID } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 
 const url = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL
@@ -65,8 +65,8 @@ try {
   must('A saved view', await A.client.from('saved_views').insert({ user_id: A.id, name: 'View A' }))
   must('A profile', await A.client.from('profiles').upsert({ user_id: A.id }))
   // written server-side in production (email ingest), so seed with admin
-  must('A email capture', await admin.from('email_captures').insert({ user_id: A.id, message_id: `rls-${run}`, sender: 'x@example.com', subject: 'Applied', body_text: 'Thanks for applying' }))
-  must('A ingest token', await admin.from('email_capture_tokens').insert({ user_id: A.id, token_hash: `rls-${run}` }))
+  const capture = must('A email capture', await admin.from('email_captures').insert({ user_id: A.id, message_id: `rls-${run}`, sender: 'x@example.com', subject: 'Applied', body_text: 'Thanks for applying' }).select('id').single())
+  must('A ingest token', await admin.from('email_capture_tokens').insert({ user_id: A.id, token_hash: createHash('sha256').update(`rls-${run}`).digest('hex') }))
 
   // ---- positive control: A sees its own rows ----
   for (const table of OWNED_TABLES) {
@@ -114,6 +114,16 @@ try {
   await denied("B cannot add an event to A's job", B.client.from('job_events').insert({ user_id: B.id, job_id: job.id, event_type: 'note' }))
   await denied("B cannot add a calendar event to A's job", B.client.from('calendar_events').insert({ user_id: B.id, job_id: job.id, type: 'other', title: 'X', start_time: new Date().toISOString() }))
   await denied('B cannot write email captures', B.client.from('email_captures').insert({ user_id: B.id, message_id: 'x', sender: 'x', subject: 'x', body_text: 'x' }))
+
+  // ---- email capture review ----
+  const bReview = await B.client.from('email_captures').update({ status: 'ignored' }).eq('id', capture.id).select('id')
+  check("B cannot review A's email capture", !bReview.data?.length)
+  const bJob = must('B job', await B.client.from('jobs').insert({ user_id: B.id, company: 'B Corp', title: 'Role B' }).select('id').single())
+  await denied("A cannot link a capture to B's job", A.client.from('email_captures').update({ matched_job_id: bJob.id }).eq('id', capture.id))
+  await denied('A cannot rewrite captured email content', A.client.from('email_captures').update({ subject: 'edited' }).eq('id', capture.id))
+  const link = await A.client.from('email_captures').update({ status: 'matched', matched_job_id: job.id }).eq('id', capture.id).select('id')
+  check('A can link own capture to own job', !link.error && link.data?.length === 1, link.error?.message)
+  await denied("A cannot change a token's hash", A.client.from('email_capture_tokens').update({ token_hash: 'f'.repeat(64) }).eq('user_id', A.id))
 
   // ---- ownership cannot be moved, DB limits hold ----
   const move = await A.client.from('jobs').update({ user_id: B.id }).eq('id', job.id).select('id')
