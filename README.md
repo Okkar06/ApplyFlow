@@ -80,7 +80,7 @@ Workflow: `.github/workflows/ci-pages.yml`
 - `extension/` contains the Manifest V3 capture client. Load its built `dist` folder in Chrome at `chrome://extensions` with Developer mode enabled and use **Load unpacked**.
 - Build the production extension with `npm run extension:typecheck` and `npm run extension:build`, then load `extension/dist`. It shares `JobInput` validation, supports LinkedIn/Indeed/Greenhouse/Lever/Workday extractors, authenticated RLS saves, resume selection, confirmation detection, and a local retry queue.
 - Security/email migration `supabase/migrations/20261117064604_security_email.sql` tightens authenticated RLS, backfills missing timeline entries, and adds forwarding-only email capture tables. `supabase/functions/ingest-email` accepts a provider-normalized webhook only when a per-user hashed ingest token matches; it does not access a mailbox.
-- Email forwarding stores bounded sender, subject, body, and parsed metadata. Messages match by URL first, then company/title; uncertain messages remain in `email_captures` for review. Configure the provider webhook and Edge Function secret before enabling ingestion.
+- Email forwarding stores bounded sender, subject, body, and parsed metadata. Messages match by URL first, then company/title; uncertain messages appear under **Needs review**, where users link them to an application or ignore them. Users create their private forwarding address under **Profile → Email forwarding** (token shown once, stored as a SHA-256 hash). Provider setup and deployment: `supabase/functions/ingest-email/README.md`.
 - Extractor fixtures live under `extension/fixtures/` and are tested without network access using `npm test -- --run extension/siteExtractors.test.ts extension/extractorUtils.test.ts`.
 
 ## Visual direction
@@ -90,6 +90,11 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Form controls use the `.control` class and tables use `.data-table`, so both designs differ only in token values.
 - Text colour tokens are unchanged; light/dark contrast checks are still outstanding.
 
-## Remaining ASK decisions
-- Auth method preference for v1 login: **email magic link** or **GitHub OAuth**?
-- Graphify integration: please share the Graphify link before setup.
+## Sign-in
+Email/password and **Continue with Google** (Supabase OAuth, PKCE). Redirects return to the app root without a hash, e.g. `https://okkar06.github.io/ApplyFlow/`. Google needs a client ID/secret in Supabase (Authentication → Providers → Google), and the site URL / redirect allow-list must include the Pages URL and `http://localhost:5173/ApplyFlow/**` for local development.
+
+## Deployment variables
+The Pages build reads browser-safe values from GitHub repository **variables** (not secrets): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and optionally `VITE_EMAIL_INGEST_ADDRESS`.
+
+## Developer tooling
+- Graphify knowledge graph for Claude Code: `graphify update .` rebuilds `graphify-out/` (ignored by git).
