@@ -7,6 +7,9 @@ const base = process.env.VITE_BASE_PATH?.trim() || '/'
 
 export default defineConfig({
   base: base.endsWith('/') ? base : `${base}/`,
+  // NEXT_PUBLIC_* is what Vercel's Supabase integration creates for browser-safe
+  // values. Never add a prefix like SUPABASE_: that would expose secret keys.
+  envPrefix: ['VITE_', 'NEXT_PUBLIC_'],
   plugins: [
     react(),
     {

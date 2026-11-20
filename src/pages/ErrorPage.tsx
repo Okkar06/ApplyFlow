@@ -112,6 +112,25 @@ export const NotFoundPage = () => {
   )
 }
 
+/** Shown instead of a blank page when the deployment has no Supabase settings. */
+export const SetupRequiredPage = ({ missing }: { missing: string[] }) => (
+  <main className="grid min-h-screen place-items-center p-4">
+    <Card level={3} className="mx-auto w-full max-w-xl p-7 sm:p-9">
+      <div role="alert">
+        <div className="grid size-16 place-items-center rounded-3xl bg-accent/10 text-accent-strong">
+          <AnimatedIcon animation={alertTriangle} size={36} autoplay loop={2} />
+        </div>
+        <h1 className="mt-5 text-2xl font-semibold tracking-tight text-text-primary">JobTrail isn't connected yet</h1>
+        <p className="mt-2 text-sm leading-6 text-text-secondary">This deployment was built without its Supabase settings. Add these environment variables to the hosting project and redeploy:</p>
+      </div>
+      <ul className="mt-4 space-y-1.5 text-sm">
+        {missing.map((name) => <li key={name}><code className="rounded-lg bg-surface-subtle px-2 py-1 text-text-primary">{name}</code></li>)}
+      </ul>
+      <p className="mt-4 text-xs text-text-muted">Vercel's Supabase integration names (<code>NEXT_PUBLIC_SUPABASE_URL</code>, <code>NEXT_PUBLIC_SUPABASE_ANON_KEY</code>) work too. Use only the public URL and anon/publishable key, never a secret key.</p>
+    </Card>
+  </main>
+)
+
 /** Last-resort boundary for anything outside the router (sign-in, app start-up). */
 export class AppErrorBoundary extends Component<{ children: ReactNode }, { error: unknown }> {
   state = { error: undefined as unknown }

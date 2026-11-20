@@ -28,6 +28,14 @@ browser-safe values; Vite inlines them at build time, so redeploy after changing
 | `VITE_FEATURE_AI_IMPORT` | `false` | all |
 | `VITE_EMAIL_INGEST_ADDRESS` | e.g. `jobs@in.example.com` (optional, once email forwarding is set up) | all |
 
+If you connected Supabase through Vercel's **Supabase integration**, it already
+created `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` (or
+`..._PUBLISHABLE_KEY`). The app reads those too (`envPrefix` in `vite.config.ts`),
+so you don't need to duplicate them as `VITE_*`. The integration also adds server
+secrets (service role, JWT secret, Postgres URLs); they have no public prefix, so
+they are never bundled. If they're missing, the app shows a "isn't connected yet"
+screen listing what to add instead of a blank page.
+
 **Never** add `SUPABASE_SECRET_KEY` / `SUPABASE_SERVICE_ROLE_KEY`, the Supabase
 access token, or `INGEST_WEBHOOK_SECRET` to Vercel. Nothing in the web app needs
 them; they belong only in `.env.local` (scripts) and Supabase Edge Function secrets.
