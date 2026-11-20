@@ -13,6 +13,7 @@ import { DocumentsPage } from '../pages/DocumentsPage'
 import { ProfilePage } from '../pages/ProfilePage'
 import { AuthPage } from '../pages/AuthPage'
 import { supabase } from '../lib/supabase'
+import { consumeAuthCallbackParams } from '../lib/authRedirect'
 import type { Session } from '@supabase/supabase-js'
 
 const router = createHashRouter([
@@ -38,12 +39,15 @@ const router = createHashRouter([
 export const App = () => {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [authError, setAuthError] = useState<string>()
 
   useEffect(() => {
     let active = true
     void supabase.auth.getSession().then(({ data, error }) => {
       if (error) console.error(error)
       if (active) {
+        const callbackError = consumeAuthCallbackParams()
+        setAuthError(error?.message ?? callbackError)
         setSession(data.session)
         setLoading(false)
       }
@@ -56,6 +60,6 @@ export const App = () => {
   }, [])
 
   if (loading) return <main className="p-6 text-sm text-text-secondary">Loading...</main>
-  if (!session) return <AuthPage />
+  if (!session) return <AuthPage initialError={authError} />
   return <RouterProvider router={router} />
 }
