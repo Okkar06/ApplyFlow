@@ -4,7 +4,7 @@ Personal job application tracker (v1 manual-first), built with React + Vite + Ty
 
 ## Stack
 - React + Vite + TypeScript (strict)
-- HashRouter (`/#/` paths) for GitHub Pages
+- HashRouter (`/#/` paths), static hosting on Vercel
 - Tailwind CSS + reusable glass tokens/components
 - TanStack Query + TanStack Table
 - React Hook Form + Zod (shared `JobInput` schema)
@@ -52,12 +52,8 @@ npm run test:rls
 ```
 
 ## CI/CD
-Workflow: `.github/workflows/ci-pages.yml`
-- lint, unit tests, build, npm audit
-- dist secret-pattern grep
-- CodeQL scan
-- gitleaks
-- deploy to GitHub Pages on `main`
+- **Deploy:** Vercel Git integration (production from `main`, previews for PRs). Setup, env vars, Supabase URLs and headers: [DEPLOYMENT.md](DEPLOYMENT.md).
+- **Checks:** `.github/workflows/ci.yml` runs lint, typecheck, unit tests, web + extension builds, npm audit, a build-output secret scan, CodeQL and gitleaks.
 
 ## v2 AI import seams already prepared
 - `jobs.source_url`, `jobs.source`, `jobs.import_status`, `jobs.import_error`, `jobs.raw_extraction`, `jobs.field_provenance`
@@ -91,10 +87,10 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Text colour tokens are unchanged; light/dark contrast checks are still outstanding.
 
 ## Sign-in
-Email/password and **Continue with Google** (Supabase OAuth, PKCE). Redirects return to the app root without a hash, e.g. `https://okkar06.github.io/ApplyFlow/`. Google needs a client ID/secret in Supabase (Authentication → Providers → Google), and the site URL / redirect allow-list must include the Pages URL and `http://localhost:5173/ApplyFlow/**` for local development.
+Email/password and **Continue with Google** (Supabase OAuth, PKCE). Redirects return to the app root without a hash, e.g. `https://<app>.vercel.app/`. Google needs a client ID/secret in Supabase (Authentication → Providers → Google), and the site URL / redirect allow-list must include the Vercel URLs and `http://localhost:5173/**` for local development (see [DEPLOYMENT.md](DEPLOYMENT.md)).
 
 ## Deployment variables
-The Pages build reads browser-safe values from GitHub repository **variables** (not secrets): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and optionally `VITE_EMAIL_INGEST_ADDRESS`.
+Set browser-safe values in Vercel → Settings → Environment Variables: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_FEATURE_AI_IMPORT=false`, and optionally `VITE_EMAIL_INGEST_ADDRESS`. Never add secret or service-role keys there.
 
 ## Developer tooling
 - Graphify knowledge graph for Claude Code: `graphify update .` rebuilds `graphify-out/` (ignored by git).

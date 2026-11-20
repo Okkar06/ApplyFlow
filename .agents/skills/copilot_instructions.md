@@ -1,7 +1,7 @@
 # JobTrail (ApplyFlow): Copilot instructions
 
 ## Project
-Personal job application tracker. React + Vite + TypeScript (strict), HashRouter for GitHub Pages, Tailwind CSS, TanStack Query + Table, React Hook Form + Zod (shared JobInput schema), Supabase (Auth/Postgres/Storage, RLS-first), Vitest + Playwright.
+Personal job application tracker. React + Vite + TypeScript (strict), HashRouter (static hosting on Vercel), Tailwind CSS, TanStack Query + Table, React Hook Form + Zod (shared JobInput schema), Supabase (Auth/Postgres/Storage, RLS-first), Vitest + Playwright.
 
 ## Rules
 - Follow the plan in PLAN.md. Work on ONE phase at a time, then stop and summarize.

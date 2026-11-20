@@ -1,8 +1,12 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
+// Served from the domain root on Vercel. Set VITE_BASE_PATH (e.g. "/ApplyFlow/")
+// only when hosting under a sub-path.
+const base = process.env.VITE_BASE_PATH?.trim() || '/'
+
 export default defineConfig({
-  base: '/ApplyFlow/',
+  base: base.endsWith('/') ? base : `${base}/`,
   plugins: [
     react(),
     {
