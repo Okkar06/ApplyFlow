@@ -6,11 +6,11 @@
 - [x] Keep private resume storage, `resume_versions`, resume metadata, and the application-to-resume foreign key.
 - [x] Keep canonical URL indexing and application-level company/title duplicate checks as the initial duplicate-detection layer.
 - [ ] Add explicit source-site and canonical job URL fields to the shared schema and database types.
-- [x] Add a structured capture model for job description, normalized requirements, skills, salary, location, remote type, and field provenance. (Provenance sources: manual, paste, extension, structured_data, email, ai. DB limits in `2026112002_job_field_constraints.sql`.)
+- [x] Add a structured capture model for job description, normalized requirements, skills, salary, location, remote type, and field provenance. (Provenance sources: manual, paste, extension, structured_data, email, ai. DB limits in `20261120100100_job_field_constraints.sql`.)
 - [x] Add an explicit `needs_review` flag or equivalent review state that is independent from import processing status.
 - [x] Define a typed status timeline/event model with allowed event types, timestamps, notes, and source metadata.
 - [x] Strengthen RLS policies with explicit `authenticated` targets and parent-job ownership checks for events, contacts, and related records.
-- [x] Add indexes and database constraints for common filters, active records, and safe duplicate matching. (`2026112001_tighten_rls.sql`, `2026112002_job_field_constraints.sql`; apply to hosted project pending.)
+- [x] Add indexes and database constraints for common filters, active records, and safe duplicate matching. (`20261120100000_tighten_rls.sql`, `20261120100100_job_field_constraints.sql`; apply to hosted project pending.)
 - [x] Keep all browser, extension, and future email inputs validated through the same `JobInput` Zod schema.
 
 ## PHASE 2 - Glassmorphism design system
