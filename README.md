@@ -46,9 +46,9 @@ Copy `.env.example` to `.env` and fill values:
 npm run test
 npm run test:e2e
 ```
-RLS test script (requires Supabase test env):
+Live RLS isolation test (reads `.env.local`; needs `SUPABASE_SECRET_KEY`, used only by this script). It creates two throwaway users, checks 51 cross-user, anonymous and storage cases, then deletes everything it created:
 ```bash
-node scripts/rls-test.mjs
+npm run test:rls
 ```
 
 ## CI/CD

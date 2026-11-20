@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:rls": "node --env-file=.env.local scripts/rls-test.mjs",
     "typecheck": "tsc -b",
     "extension:build": "vite build --config extension/vite.config.ts",
     "extension:typecheck": "tsc -p extension/tsconfig.json --noEmit",
