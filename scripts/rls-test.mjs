@@ -6,6 +6,7 @@
 // Needs VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY (or SUPABASE_PUBLISHABLE_KEY)
 // and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY). The secret key is used
 // only here, server-side, to create and delete the test users.
+import { randomUUID } from 'node:crypto'
 import { createClient } from '@supabase/supabase-js'
 
 const url = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL
@@ -32,7 +33,7 @@ const must = (label, { data, error }) => {
 }
 
 const run = Date.now().toString(36) + Math.random().toString(36).slice(2, 6)
-const password = `Rls-${crypto.randomUUID()}`
+const password = `Rls-${randomUUID()}`
 const created = { users: [], files: [] }
 
 const makeUser = async (tag) => {
