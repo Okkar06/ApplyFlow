@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { detectSourceFromUrl, validateExternalUrl } from '../utils/url'
-import { IMPORT_STATUSES, JOB_SOURCES, JOB_STATUSES } from '../types/job'
+import { IMPORT_STATUSES, JOB_SOURCES, JOB_STATUSES, PROVENANCE_SOURCES } from '../types/job'
 
 export const JobInput = z
   .object({
@@ -22,13 +22,13 @@ export const JobInput = z
     needsReview: z.boolean().default(false),
     importError: z.string().max(2000).optional(),
     jobDescription: z.string().max(50000).optional(),
-    requirements: z.array(z.string().trim().min(1).max(120)).default([]),
-    rawExtraction: z.record(z.string(), z.unknown()).nullable().optional(),
-    fieldProvenance: z.record(z.string(), z.object({ source: z.enum(['manual', 'ai']), confidence: z.number().min(0).max(1).optional() })).nullable().optional(),
+    requirements: z.array(z.string().trim().min(1).max(120)).max(100).default([]),
+    rawExtraction: z.record(z.string(), z.unknown()).nullable().optional().refine((value) => !value || JSON.stringify(value).length <= 200_000, 'rawExtraction is too large'),
+    fieldProvenance: z.record(z.string(), z.object({ source: z.enum(PROVENANCE_SOURCES), confidence: z.number().min(0).max(1).optional() })).nullable().optional(),
     priority: z.coerce.number().int().min(1).max(5).default(3),
     relevanceManual: z.coerce.number().int().min(1).max(5).optional(),
     notes: z.string().max(5000).optional(),
-    skills: z.array(z.string().trim().min(1).max(40)).default([]),
+    skills: z.array(z.string().trim().min(1).max(40)).max(50).default([]),
     resumeVersionId: z.string().uuid().optional(),
   })
   .superRefine((value, ctx) => {

@@ -27,7 +27,7 @@ export const parseSalaryValue = (job: JsonLdJob | undefined) => {
 }
 
 export const extractBulletRequirements = (description: string, skills: string[]) => {
-  const bullets = [...description.matchAll(/(?:^|\n|\r)[\s]*[-*•]\s+(.{3,160})/g)].map((match) => match[1].replace(/\s+/g, ' ').trim()).filter(Boolean)
+  const bullets = [...description.matchAll(/(?:^|\n|\r)[\s]*[-*•]\s+(.{3,160})/g)].map((match) => match[1].replace(/\s+/g, ' ').trim().slice(0, 120)).filter(Boolean)
   return [...new Set([...bullets, ...skills])].slice(0, 100)
 }
 

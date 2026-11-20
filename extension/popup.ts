@@ -1,6 +1,7 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { JobInput } from '../src/schemas/jobInput'
 import { canonicalizeUrl } from '../src/utils/url'
+import { sanitizeImportedText } from '../src/utils/sanitizeText'
 
 type Capture = {
   title: string
@@ -175,7 +176,7 @@ form.addEventListener('submit', async (event) => {
     title: title.value,
     company: company.value,
     location: locationField.value,
-    jobDescription: description.value,
+    jobDescription: sanitizeImportedText(description.value, 50_000),
     sourceUrl: form.dataset.sourceUrl,
     source: form.dataset.source,
     workMode: form.dataset.workMode ?? 'hybrid',
@@ -188,7 +189,7 @@ form.addEventListener('submit', async (event) => {
     appliedDate: new Date().toISOString().slice(0, 10),
     importStatus: needsReview.checked ? 'needs_review' : 'done',
     needsReview: needsReview.checked,
-    fieldProvenance: { title: { source: 'manual' }, company: { source: 'manual' }, jobDescription: { source: 'ai', confidence: 0.7 } },
+    fieldProvenance: { title: { source: 'manual' }, company: { source: 'manual' }, jobDescription: { source: 'extension', confidence: 0.7 } },
   }
   try {
     await saveInput(input)

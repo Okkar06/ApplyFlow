@@ -7,6 +7,11 @@ export type JobSource = (typeof JOB_SOURCES)[number]
 export const IMPORT_STATUSES = ['none', 'pending', 'processing', 'needs_review', 'done', 'failed'] as const
 export type ImportStatus = (typeof IMPORT_STATUSES)[number]
 
+/** Where a captured field value came from. 'ai' is reserved for a real model call. */
+export const PROVENANCE_SOURCES = ['manual', 'paste', 'extension', 'structured_data', 'email', 'ai'] as const
+export type ProvenanceSource = (typeof PROVENANCE_SOURCES)[number]
+export type FieldProvenance = Record<string, { source: ProvenanceSource; confidence?: number }>
+
 export type Job = {
   id: string
   company: string
@@ -30,7 +35,7 @@ export type Job = {
   requirements: string[]
   resumeVersionId?: string
   rawExtraction?: unknown
-  fieldProvenance?: Record<string, { source: 'manual' | 'ai'; confidence?: number }>
+  fieldProvenance?: FieldProvenance
   priority: 1 | 2 | 3 | 4 | 5
   relevanceManual?: number
   notes?: string

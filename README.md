@@ -32,13 +32,14 @@ Copy `.env.example` to `.env` and fill values:
 - No `dangerouslySetInnerHTML`; ESLint blocks risky DOM APIs.
 - URL validation blocks `javascript:`/`data:`/`vbscript:` by allowing only `https:` and `http:`.
 - CSV export sanitizes formula prefixes (`= + - @ tab CR`) with `'` prefix.
+- Pasted and extension-captured job text is converted to plain text by `src/utils/sanitizeText.ts` (tags, scripts, control and bidi characters removed; input capped at 200k characters).
 - Supabase RLS on all core tables with `user_id = auth.uid()` and immutable ownership trigger.
 
 ## Database
 - Migration: `supabase/migrations/2026102601_initial.sql`
 - Capture foundation migration: `supabase/migrations/2026111601_capture_foundation.sql`
 - Seed: `supabase/seed.sql`
-- v2 parser placeholder docs: `supabase/functions/parse-job/README.md`
+- Server-side parser (disabled, not deployed) and its SSRF guards: `supabase/functions/parse-job/README.md`
 
 ## Tests
 ```bash
