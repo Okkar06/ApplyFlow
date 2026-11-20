@@ -3,7 +3,9 @@
 export type JobStatus = 'saved' | 'applied' | 'interview' | 'offer' | 'rejected' | 'ghosted'
 export type EmailStatus = 'applied' | 'interview' | 'offer' | 'rejected' | null
 
-export const MAX_REQUEST_BYTES = 200_000
+// Postmark sends attachments base64-encoded inside the JSON; we ignore them, but
+// the request still has to fit. Bigger emails are refused (403, no retries).
+export const MAX_REQUEST_BYTES = 5_000_000
 
 const text = (value: unknown, max: number) => (typeof value === 'string' ? value.trim().slice(0, max) : '')
 
@@ -27,16 +29,67 @@ export const extractToken = (body: { token?: unknown; recipient?: unknown }) => 
   return recipient.match(/^[^+@\s]+\+([a-z0-9_-]{16,128})@/)?.[1] ?? ''
 }
 
-export const normalizePayload = (body: Record<string, unknown>) => {
+/** Postmark inbound webhook -> our generic payload. Other shapes pass through. */
+export const fromProviderPayload = (body: Record<string, unknown>): Record<string, unknown> => {
+  const isPostmark = typeof body.MessageID === 'string' && ('FromFull' in body || 'From' in body)
+  if (!isPostmark) return body
+  const fromFull = (body.FromFull ?? {}) as { Email?: unknown }
+  const toFull = Array.isArray(body.ToFull) ? (body.ToFull as Array<{ Email?: unknown; MailboxHash?: unknown }>) : []
+  return {
+    token: text(body.MailboxHash, 256) || text(toFull.find((item) => text(item.MailboxHash, 256))?.MailboxHash, 256),
+    recipient: text(body.OriginalRecipient, 320) || text(toFull[0]?.Email, 320) || text(body.To, 320),
+    messageId: text(body.MessageID, 512),
+    sender: text(fromFull.Email, 320) || text(body.From, 320),
+    subject: text(body.Subject, 500),
+    bodyText: text(body.TextBody, 50_000),
+    bodyHtml: text(body.HtmlBody, 200_000),
+    receivedAt: body.Date,
+  }
+}
+
+/** When the user forwards an email, recover the original sender from the quoted header. */
+export const originalSender = (bodyText: string) => {
+  const forwarded = bodyText.match(/(?:-{2,}\s*Forwarded message\s*-{2,}|Begin forwarded message:|-{2,}\s*Original Message\s*-{2,})([\s\S]{0,2000})/i)?.[1]
+  if (!forwarded) return ''
+  const from = forwarded.match(/^\s*\*?From:?\*?\s*:?\s*(.+)$/im)?.[1] ?? ''
+  return from.match(/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/)?.[0] ?? ''
+}
+
+export const stripForwardPrefix = (subject: string) => subject.replace(/^(?:\s*(?:fwd?|fw)\s*:\s*)+/i, '').trim()
+
+export const normalizePayload = (raw: Record<string, unknown>) => {
+  const body = fromProviderPayload(raw)
   const html = text(body.bodyHtml, 200_000)
-  const plain = text(body.bodyText, 50_000) || stripHtml(html)
+  const plain = (text(body.bodyText, 50_000) || stripHtml(html)).slice(0, 50_000)
+  const forwardedBy = text(body.sender, 320)
   return {
     token: extractToken(body),
     messageId: text(body.messageId, 512),
-    sender: text(body.sender, 320),
-    subject: text(body.subject, 500),
-    bodyText: plain.slice(0, 50_000),
+    sender: originalSender(plain) || forwardedBy,
+    forwardedBy,
+    subject: stripForwardPrefix(text(body.subject, 500)) || text(body.subject, 500),
+    bodyText: plain,
     receivedAt: typeof body.receivedAt === 'string' && !Number.isNaN(Date.parse(body.receivedAt)) ? new Date(body.receivedAt).toISOString() : null,
+  }
+}
+
+/**
+ * The provider proves it is the caller with the shared secret, either as an
+ * x-ingest-secret header or as the password of HTTP Basic auth
+ * (https://user:SECRET@.../ingest-email), which is what Postmark supports.
+ */
+export const webhookAuthorized = (headers: { get(name: string): string | null }, secret: string) => {
+  if (secret.length < 32) return false
+  const header = headers.get('x-ingest-secret')
+  if (header) return safeEqual(header, secret)
+  const auth = headers.get('authorization') ?? ''
+  if (!/^basic /i.test(auth)) return false
+  try {
+    const decoded = atob(auth.slice(6).trim())
+    const password = decoded.slice(decoded.indexOf(':') + 1)
+    return decoded.includes(':') && safeEqual(password, secret)
+  } catch {
+    return false
   }
 }
 

@@ -1,10 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { MAX_REQUEST_BYTES, nextJobStatus, normalizePayload, parseEmail, safeEqual, sha256Hex, type JobStatus } from './logic.ts'
+import { MAX_REQUEST_BYTES, nextJobStatus, normalizePayload, parseEmail, sha256Hex, webhookAuthorized, type JobStatus } from './logic.ts'
 
-// Receives a provider-normalized forwarded email. Two secrets protect it:
-//   x-ingest-secret header  -> INGEST_WEBHOOK_SECRET (proves the call came from your email provider)
+// Receives forwarded emails from an inbound provider (Postmark format, or the
+// generic JSON format in README.md). Two secrets protect it:
+//   INGEST_WEBHOOK_SECRET   -> x-ingest-secret header or Basic-auth password (proves the caller is your provider)
 //   token / plus-address    -> a per-user token, stored only as a SHA-256 hash
 // No mailbox access is ever granted.
+// Permanent failures return 403, which tells Postmark to stop retrying.
 
 const headers = { 'Content-Type': 'application/json' }
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers })
@@ -14,25 +16,26 @@ Deno.serve(async (request) => {
 
   const webhookSecret = Deno.env.get('INGEST_WEBHOOK_SECRET') ?? ''
   if (webhookSecret.length < 32) return json({ error: 'Email ingest is not configured.' }, 503)
-  if (!safeEqual(request.headers.get('x-ingest-secret') ?? '', webhookSecret)) return json({ error: 'Unauthorized.' }, 401)
+  if (!webhookAuthorized(request.headers, webhookSecret)) return json({ error: 'Unauthorized.' }, 403)
 
   try {
     const raw = await request.text()
-    if (raw.length > MAX_REQUEST_BYTES) return json({ error: 'Payload too large.' }, 413)
+    if (raw.length > MAX_REQUEST_BYTES) return json({ error: 'Payload too large.' }, 403)
     let body: Record<string, unknown>
     try {
       body = JSON.parse(raw)
     } catch {
-      return json({ error: 'Invalid JSON.' }, 400)
+      return json({ error: 'Invalid JSON.' }, 403)
     }
     const email = normalizePayload(body)
     if (!email.token || !email.messageId || !email.sender || !email.subject || !email.bodyText) {
-      return json({ error: 'token (or plus-address recipient), messageId, sender, subject and bodyText/bodyHtml are required.' }, 400)
+      return json({ error: 'token (or plus-address recipient), messageId, sender, subject and bodyText/bodyHtml are required.' }, 403)
     }
 
     const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } })
     const tokenRow = await admin.from('email_capture_tokens').select('id, user_id').eq('token_hash', await sha256Hex(email.token)).eq('active', true).maybeSingle()
-    if (tokenRow.error || !tokenRow.data) return json({ error: 'Invalid ingest token.' }, 401)
+    if (tokenRow.error) throw tokenRow.error
+    if (!tokenRow.data) return json({ error: 'Invalid ingest token.' }, 403)
     const userId = tokenRow.data.user_id
     await admin.from('email_capture_tokens').update({ last_used_at: new Date().toISOString() }).eq('id', tokenRow.data.id)
 
