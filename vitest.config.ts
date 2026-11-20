@@ -7,5 +7,7 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     setupFiles: './src/vitest.setup.ts',
+    // tests/ holds Playwright specs, run separately with `npm run test:e2e`
+    exclude: ['**/node_modules/**', '**/dist/**', 'tests/**', 'graphify-out/**'],
   },
 })
