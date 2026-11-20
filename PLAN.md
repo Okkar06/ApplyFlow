@@ -6,11 +6,11 @@
 - [x] Keep private resume storage, `resume_versions`, resume metadata, and the application-to-resume foreign key.
 - [x] Keep canonical URL indexing and application-level company/title duplicate checks as the initial duplicate-detection layer.
 - [ ] Add explicit source-site and canonical job URL fields to the shared schema and database types.
-- [ ] Add a structured capture model for job description, normalized requirements, skills, salary, location, remote type, and field provenance.
+- [x] Add a structured capture model for job description, normalized requirements, skills, salary, location, remote type, and field provenance. (Provenance sources: manual, paste, extension, structured_data, email, ai. DB limits in `20261120100100_job_field_constraints.sql`.)
 - [x] Add an explicit `needs_review` flag or equivalent review state that is independent from import processing status.
 - [x] Define a typed status timeline/event model with allowed event types, timestamps, notes, and source metadata.
 - [x] Strengthen RLS policies with explicit `authenticated` targets and parent-job ownership checks for events, contacts, and related records.
-- [ ] Add indexes and database constraints for common filters, active records, and safe duplicate matching.
+- [x] Add indexes and database constraints for common filters, active records, and safe duplicate matching. (`20261120100000_tighten_rls.sql`, `20261120100100_job_field_constraints.sql`; applied to the hosted project 2026-11-20.)
 - [x] Keep all browser, extension, and future email inputs validated through the same `JobInput` Zod schema.
 
 ## PHASE 2 - Glassmorphism design system
@@ -48,7 +48,7 @@
 - [x] Prefill the validated form with field provenance and confidence values.
 - [x] Show the editable form as the review step before saving.
 - [x] Save partial results with `needs_review` instead of silently dropping missing fields.
-- [ ] Sanitize captured text and HTML; never render captured HTML with `dangerouslySetInnerHTML`.
+- [x] Sanitize captured text and HTML; never render captured HTML with `dangerouslySetInnerHTML`. (`src/utils/sanitizeText.ts`, used by paste import and the extension.)
 
 ## PHASE 5 - Browser extension
 
@@ -83,7 +83,7 @@
 - [x] Add saved synthetic HTML fixtures for each supported job-site extractor.
 - [ ] Add Playwright coverage for theme persistence, no-flash initialization, review inbox behavior, and resume linking.
 - [ ] Add contrast checks for both light and dark themes.
-- [ ] Add RLS tests for jobs, resumes, storage objects, events, and cross-user isolation.
+- [x] Add RLS tests for jobs, resumes, storage objects, events, and cross-user isolation. (`npm run test:rls`, 51 checks, passing against the hosted project 2026-11-20.)
 - [ ] Test malformed, oversized, unsafe, partial, duplicate, and offline inputs.
 - [ ] Review CSP, extension permissions, redirect URLs, storage policies, and secret exposure.
 - [ ] Update `README.md` with extension setup, environment variables, migrations, deployment, and security model changes.

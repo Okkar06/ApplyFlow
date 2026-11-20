@@ -32,22 +32,23 @@ Copy `.env.example` to `.env` and fill values:
 - No `dangerouslySetInnerHTML`; ESLint blocks risky DOM APIs.
 - URL validation blocks `javascript:`/`data:`/`vbscript:` by allowing only `https:` and `http:`.
 - CSV export sanitizes formula prefixes (`= + - @ tab CR`) with `'` prefix.
+- Pasted and extension-captured job text is converted to plain text by `src/utils/sanitizeText.ts` (tags, scripts, control and bidi characters removed; input capped at 200k characters).
 - Supabase RLS on all core tables with `user_id = auth.uid()` and immutable ownership trigger.
 
 ## Database
-- Migration: `supabase/migrations/2026102601_initial.sql`
-- Capture foundation migration: `supabase/migrations/2026111601_capture_foundation.sql`
+- Migration: `supabase/migrations/20261116070011_initial_schema.sql`
+- Capture foundation migration: `supabase/migrations/20261116070020_capture_foundation.sql`
 - Seed: `supabase/seed.sql`
-- v2 parser placeholder docs: `supabase/functions/parse-job/README.md`
+- Server-side parser (disabled, not deployed) and its SSRF guards: `supabase/functions/parse-job/README.md`
 
 ## Tests
 ```bash
 npm run test
 npm run test:e2e
 ```
-RLS test script (requires Supabase test env):
+Live RLS isolation test (reads `.env.local`; needs `SUPABASE_SECRET_KEY`, used only by this script). It creates two throwaway users, checks 51 cross-user, anonymous and storage cases, then deletes everything it created:
 ```bash
-node scripts/rls-test.mjs
+npm run test:rls
 ```
 
 ## CI/CD
@@ -67,27 +68,33 @@ Workflow: `.github/workflows/ci-pages.yml`
 - Email/password authentication protects the app and all browser writes use the Supabase anon key with RLS.
 - Resume versions are stored in the private `resumes` bucket and linked from `jobs.resume_version_id`.
 - Job saves canonicalize source URLs and reject duplicate active URLs per user.
-- Calendar events are stored in the RLS-protected `calendar_events` table. Apply `supabase/migrations/2026111602_calendar_events.sql` (or the equivalent hosted migration) before using event creation.
+- Calendar events are stored in the RLS-protected `calendar_events` table. Apply `supabase/migrations/20261117022348_calendar_events.sql` (or the equivalent hosted migration) before using event creation.
 - Calendar supports month, week, and agenda views, event-type filters, linked jobs, suggested follow-ups, and optimistic event mutations.
 - Job detail pages are available at `/#/jobs/:id`; incomplete imported records appear at `/#/needs-review`.
 - Paste-a-link fallback currently supports safe local parsing of pasted job description text. It does not scrape remote pages from the browser.
 - Existing jobs can be edited at `/#/jobs/:id/edit`; edits use the same validated `JobInput` schema as new jobs.
 - Reviewable captures have a dedicated `jobs.needs_review` flag. The Needs Review page supports mark reviewed, dismiss, and edit actions.
 - Status changes are recorded in `job_events` by the `jobs_status_timeline` trigger and shown on job details.
-- The hosted review/timeline migration is `supabase/migrations/2026111701_review_timeline.sql`.
+- The hosted review/timeline migration is `supabase/migrations/20261117025948_review_timeline.sql`.
 - `supabase/functions/parse-job` is a server-side JSON-LD `JobPosting` extraction foundation. It is not a general scraper and should be deployed/configured before enabling remote URL imports.
 - `extension/` contains the Manifest V3 capture client. Load its built `dist` folder in Chrome at `chrome://extensions` with Developer mode enabled and use **Load unpacked**.
 - Build the production extension with `npm run extension:typecheck` and `npm run extension:build`, then load `extension/dist`. It shares `JobInput` validation, supports LinkedIn/Indeed/Greenhouse/Lever/Workday extractors, authenticated RLS saves, resume selection, confirmation detection, and a local retry queue.
-- Security/email migration `supabase/migrations/2026111702_security_email.sql` tightens authenticated RLS, backfills missing timeline entries, and adds forwarding-only email capture tables. `supabase/functions/ingest-email` accepts a provider-normalized webhook only when a per-user hashed ingest token matches; it does not access a mailbox.
-- Email forwarding stores bounded sender, subject, body, and parsed metadata. Messages match by URL first, then company/title; uncertain messages remain in `email_captures` for review. Configure the provider webhook and Edge Function secret before enabling ingestion.
+- Security/email migration `supabase/migrations/20261117064604_security_email.sql` tightens authenticated RLS, backfills missing timeline entries, and adds forwarding-only email capture tables. `supabase/functions/ingest-email` accepts a provider-normalized webhook only when a per-user hashed ingest token matches; it does not access a mailbox.
+- Email forwarding stores bounded sender, subject, body, and parsed metadata. Messages match by URL first, then company/title; uncertain messages appear under **Needs review**, where users link them to an application or ignore them. Users create their private forwarding address under **Profile → Email forwarding** (token shown once, stored as a SHA-256 hash). Provider setup and deployment: `supabase/functions/ingest-email/README.md`.
 - Extractor fixtures live under `extension/fixtures/` and are tested without network access using `npm test -- --run extension/siteExtractors.test.ts extension/extractorUtils.test.ts`.
 
-## Visual direction proposals (Phase 1 ASK)
-1. **Aurora Mist**: brighter indigo/teal glow, softer card borders, more depth on KPI cards.
-2. **Nebula Slate**: darker neutral base, sharper contrast tables/forms, restrained glow.
+## Visual direction
+**Nebula Slate** was chosen over Aurora Mist (still on branch `feat/aurora-mist` for reference): darker neutral base, sharper contrast on tables and forms, restrained glow.
 
-Pick one to finalize tokens and component polish.
+- Tokens live in `src/index.css`: `--mesh-strength`, `--border-alpha`, `--control-border-alpha`, `--table-rule-alpha`, `--table-head-bg`, `--kpi-edge`, `--glow-kpi`, with light and dark values.
+- Form controls use the `.control` class and tables use `.data-table`, so both designs differ only in token values.
+- Text colour tokens are unchanged; light/dark contrast checks are still outstanding.
 
-## Remaining ASK decisions
-- Auth method preference for v1 login: **email magic link** or **GitHub OAuth**?
-- Graphify integration: please share the Graphify link before setup.
+## Sign-in
+Email/password and **Continue with Google** (Supabase OAuth, PKCE). Redirects return to the app root without a hash, e.g. `https://okkar06.github.io/ApplyFlow/`. Google needs a client ID/secret in Supabase (Authentication → Providers → Google), and the site URL / redirect allow-list must include the Pages URL and `http://localhost:5173/ApplyFlow/**` for local development.
+
+## Deployment variables
+The Pages build reads browser-safe values from GitHub repository **variables** (not secrets): `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, and optionally `VITE_EMAIL_INGEST_ADDRESS`.
+
+## Developer tooling
+- Graphify knowledge graph for Claude Code: `graphify update .` rebuilds `graphify-out/` (ignored by git).

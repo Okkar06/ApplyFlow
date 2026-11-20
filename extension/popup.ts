@@ -1,6 +1,8 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { JobInput } from '../src/schemas/jobInput'
 import { canonicalizeUrl } from '../src/utils/url'
+import { sanitizeImportedText } from '../src/utils/sanitizeText'
+import { classifySaveError, isRetryable, MAX_QUEUE_ITEMS, SaveError } from './saveErrors'
 
 type Capture = {
   title: string
@@ -57,13 +59,15 @@ const queue = async (): Promise<QueueItem[]> => {
 
 const enqueue = async (input: unknown) => {
   const items = await queue()
+  if (items.length >= MAX_QUEUE_ITEMS) return false
   items.push({ id: crypto.randomUUID(), input })
   await chrome.storage.local.set({ jobtrailQueue: items })
+  return true
 }
 
 const saveInput = async (input: unknown) => {
   const parsed = JobInput.safeParse(input)
-  if (!parsed.success) throw new Error(parsed.error.issues.map((issue) => `${issue.path.join('.') || 'job'}: ${issue.message}`).join('; '))
+  if (!parsed.success) throw new SaveError(parsed.error.issues.map((issue) => `${issue.path.join('.') || 'job'}: ${issue.message}`).join('; '), false)
   const { error } = await supabase.from('jobs').insert({
     company: parsed.data.company,
     title: parsed.data.title,
@@ -89,10 +93,7 @@ const saveInput = async (input: unknown) => {
     notes: parsed.data.notes ?? null,
     tags: parsed.data.skills,
   })
-  if (error) {
-    if (error.code === '23505') throw new Error('This job is already saved.')
-    throw new Error(error.message)
-  }
+  if (error) throw classifySaveError(error)
 }
 
 const retryQueue = async () => {
@@ -102,11 +103,19 @@ const retryQueue = async () => {
     return
   }
   const remaining: QueueItem[] = []
+  let dropped = 0
   for (const item of items) {
-    try { await saveInput(item.input) } catch { remaining.push(item) }
+    try {
+      await saveInput(item.input)
+    } catch (error) {
+      if (error instanceof SaveError && error.duplicate) continue // already saved: done
+      if (isRetryable(error)) remaining.push(item)
+      else dropped += 1
+    }
   }
   await chrome.storage.local.set({ jobtrailQueue: remaining })
-  setMessage(remaining.length ? `${remaining.length} capture(s) still queued.` : 'Queued captures saved.', remaining.length ? 'error' : 'success')
+  const notes = [remaining.length ? `${remaining.length} capture(s) still queued.` : 'Queued captures saved.', dropped ? `${dropped} invalid capture(s) removed.` : ''].filter(Boolean).join(' ')
+  setMessage(notes, remaining.length || dropped ? 'error' : 'success')
 }
 
 const loadResumes = async () => {
@@ -175,7 +184,7 @@ form.addEventListener('submit', async (event) => {
     title: title.value,
     company: company.value,
     location: locationField.value,
-    jobDescription: description.value,
+    jobDescription: sanitizeImportedText(description.value, 50_000),
     sourceUrl: form.dataset.sourceUrl,
     source: form.dataset.source,
     workMode: form.dataset.workMode ?? 'hybrid',
@@ -188,14 +197,16 @@ form.addEventListener('submit', async (event) => {
     appliedDate: new Date().toISOString().slice(0, 10),
     importStatus: needsReview.checked ? 'needs_review' : 'done',
     needsReview: needsReview.checked,
-    fieldProvenance: { title: { source: 'manual' }, company: { source: 'manual' }, jobDescription: { source: 'ai', confidence: 0.7 } },
+    fieldProvenance: { title: { source: 'manual' }, company: { source: 'manual' }, jobDescription: { source: 'extension', confidence: 0.7 } },
   }
   try {
     await saveInput(input)
     setMessage('Saved to JobTrail.', 'success')
   } catch (error) {
-    await enqueue(input)
-    setMessage(`${error instanceof Error ? error.message : 'Save failed'} Saved to the retry queue.`, 'error')
+    const reason = error instanceof Error ? error.message : 'Save failed.'
+    if (!isRetryable(error)) setMessage(reason, 'error')
+    else if (await enqueue(input)) setMessage(`${reason} Saved to the retry queue.`, 'error')
+    else setMessage(`${reason} The retry queue is full; retry or clear it first.`, 'error')
   } finally {
     saveButton.disabled = false
   }

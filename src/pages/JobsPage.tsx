@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { createColumnHelper, flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type SortingState } from '@tanstack/react-table'
-import { ArrowDownUp, BriefcaseBusiness, Download, Plus, Search } from 'lucide-react'
+import { ArrowDownUp, Plus, Search } from 'lucide-react'
+import downloadAnimation from 'react-useanimations/lib/download'
+import briefcaseAnimation from 'react-useanimations/lib/briefcase'
+import zoomInAnimation from 'react-useanimations/lib/zoomIn'
 import { Link } from 'react-router-dom'
-import { Badge, Button, Card, EmptyState, Input, Select, Skeleton, Table } from '../components/ui'
+import { AnimatedButton, Badge, Button, Card, EmptyState, Input, Select, Skeleton, Table } from '../components/ui'
 import type { Job } from '../types/job'
 import { JOB_SOURCES, JOB_STATUSES } from '../types/job'
 import { listJobs } from '../services/jobs'
@@ -63,7 +66,7 @@ export const JobsPage = () => {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-strong">Applications</p><h1 className="mt-1 text-2xl font-semibold text-text-primary">Jobs</h1><p className="mt-1 text-sm text-text-secondary">Search and manage every opportunity in one place.</p></div>
-        <div className="flex gap-2"><Button variant="secondary" onClick={exportCsv} disabled={!visibleRows.length}><Download size={16} aria-hidden="true" />Export CSV</Button><Link to="/jobs/new"><Button><Plus size={16} aria-hidden="true" />Add Job</Button></Link></div>
+        <div className="flex gap-2"><AnimatedButton variant="secondary" animation={downloadAnimation} onClick={exportCsv} disabled={!visibleRows.length}>Export CSV</AnimatedButton><Link to="/jobs/new"><Button><Plus size={16} aria-hidden="true" />Add Job</Button></Link></div>
       </div>
       <Card className="space-y-3">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
@@ -76,8 +79,8 @@ export const JobsPage = () => {
       </Card>
       {isLoading && <Card><Skeleton className="h-64" /></Card>}
       {error && <Card><p role="alert" className="text-sm text-rejected">{error instanceof Error ? error.message : 'Unable to load jobs.'}</p></Card>}
-      {!isLoading && !error && !rows.length && <Card><EmptyState icon={BriefcaseBusiness} title="No applications yet" description="Start tracking an opportunity and it will appear here." action={<Link to="/jobs/new"><Button><Plus size={16} aria-hidden="true" />Add your first job</Button></Link>} /></Card>}
-      {!isLoading && !error && !!rows.length && !filteredRows.length && <Card><EmptyState icon={Search} title="No matching jobs" description="Try clearing a filter or searching for a different role." /></Card>}
+      {!isLoading && !error && !rows.length && <Card><EmptyState animation={briefcaseAnimation} title="No applications yet" description="Start tracking an opportunity and it will appear here." action={<Link to="/jobs/new"><Button><Plus size={16} aria-hidden="true" />Add your first job</Button></Link>} /></Card>}
+      {!isLoading && !error && !!rows.length && !filteredRows.length && <Card><EmptyState animation={zoomInAnimation} title="No matching jobs" description="Try clearing a filter or searching for a different role." /></Card>}
       {!isLoading && !error && !!filteredRows.length && <Card className="p-3 sm:p-5">      <div className="hidden md:block"><Table><thead><tr>{table.getHeaderGroups()[0].headers.map((header) => <th key={header.id} className="px-3 py-3 text-xs font-semibold uppercase tracking-wide text-text-muted"><button type="button" onClick={header.column.getToggleSortingHandler()} className="inline-flex items-center gap-1 rounded focus-visible:ring-2 focus-visible:ring-accent/60">{flexRender(header.column.columnDef.header, header.getContext())}<ArrowDownUp size={13} aria-hidden="true" /></button></th>)}</tr></thead><tbody>{table.getRowModel().rows.map((row) => <tr key={row.id} className="border-t border-border/20 hover:bg-surface-subtle/40">{row.getVisibleCells().map((cell) => <td key={cell.id} className="px-3 py-3 text-text-secondary">{flexRender(cell.column.columnDef.cell, cell.getContext())}</td>)}</tr>)}</tbody></Table></div><div className="grid gap-3 md:hidden">{visibleRows.map((job) => <Link to={`/jobs/${job.id}`} key={job.id} className="rounded-2xl border border-border/25 bg-surface-subtle/30 p-4 hover:bg-surface-subtle/50"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h2 className="truncate font-semibold text-text-primary">{job.title}</h2><p className="truncate text-sm text-text-secondary">{job.company}</p></div><Badge status={job.status}>{statusLabels[job.status]}</Badge></div><div className="mt-3 grid grid-cols-2 gap-2 text-xs text-text-muted"><span>{job.location || 'Location not set'}</span><span>{sourceLabels[job.source]}</span><span>{job.appliedDate || 'Not applied'}</span></div></Link>)}</div></Card>}
     </div>
   )

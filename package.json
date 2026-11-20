@@ -11,13 +11,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:rls": "node --env-file=.env.local scripts/rls-test.mjs",
     "typecheck": "tsc -b",
     "extension:build": "vite build --config extension/vite.config.ts",
     "extension:typecheck": "tsc -p extension/tsconfig.json --noEmit",
     "audit": "npm audit --audit-level=moderate"
   },
   "dependencies": {
-    "@hookform/resolvers": "^3.10.0",
+    "@hookform/resolvers": "^5.9.2",
     "@supabase/server": "1.9.2",
     "@supabase/supabase-js": "^2.57.4",
     "@tanstack/react-query": "^5.90.5",
@@ -28,6 +29,7 @@
     "react-dom": "^19.3.1",
     "react-hook-form": "^7.66.0",
     "react-router-dom": "^7.9.4",
+    "react-useanimations": "^3.1.1",
     "recharts": "^3.3.0",
     "zod": "^4.1.12"
   },
@@ -53,6 +55,7 @@
     "jsdom": "^27.0.1",
     "playwright": "^1.56.1",
     "postcss": "^8.5.6",
+    "supabase": "^3.2.0",
     "tailwindcss": "^3.4.18",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.72.0",

@@ -189,11 +189,11 @@ Before deployment, confirm the hosted Supabase project has all required migratio
 Apply migrations in repository order:
 
 ```text
-supabase/migrations/2026102601_initial.sql
-supabase/migrations/2026111601_capture_foundation.sql
-supabase/migrations/2026111602_calendar_events.sql
-supabase/migrations/2026111701_review_timeline.sql
-supabase/migrations/2026111702_security_email.sql
+supabase/migrations/20261116070011_initial_schema.sql
+supabase/migrations/20261116070020_capture_foundation.sql
+supabase/migrations/20261117022348_calendar_events.sql
+supabase/migrations/20261117025948_review_timeline.sql
+supabase/migrations/20261117064604_security_email.sql
 ```
 
 Additional operational files:

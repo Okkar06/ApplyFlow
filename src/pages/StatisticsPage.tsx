@@ -12,7 +12,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { BarChart3, BriefcaseBusiness, CalendarDays, ChevronDown, ChevronUp, Percent, TrendingUp } from 'lucide-react'
+import { BriefcaseBusiness, CalendarDays, ChevronDown, ChevronUp, Percent, TrendingUp } from 'lucide-react'
+import alertTriangleAnimation from 'react-useanimations/lib/alertTriangle'
+import barChartAnimation from 'react-useanimations/lib/barChart'
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, Select, Skeleton } from '../components/ui'
 import { listJobs } from '../services/jobs'
@@ -57,7 +59,7 @@ const Stat = ({ label, value, detail, icon: Icon }: { label: string; value: stri
   </Card>
 )
 
-const ChartEmpty = () => <EmptyState icon={BarChart3} title="No statistics yet" description="Add a few applications to see your stats." action={<Link className="text-sm font-medium text-accent hover:text-accent-strong" to="/jobs/new">Add an application</Link>} />
+const ChartEmpty = () => <EmptyState animation={barChartAnimation} title="No statistics yet" description="Add a few applications to see your stats." action={<Link className="text-sm font-medium text-accent hover:text-accent-strong" to="/jobs/new">Add an application</Link>} />
 
 export const StatisticsPage = () => {
   const { data: jobs = [], isLoading, isError } = useQuery({ queryKey: ['jobs'], queryFn: listJobs })
@@ -95,7 +97,7 @@ export const StatisticsPage = () => {
   }
 
   if (isLoading) return <div className="space-y-5"><Skeleton className="h-20" /><Skeleton className="h-96" /><Skeleton className="h-72" /></div>
-  if (isError) return <EmptyState icon={BarChart3} title="Unable to load statistics" description="Refresh the page and try again." />
+  if (isError) return <EmptyState animation={alertTriangleAnimation} title="Unable to load statistics" description="Refresh the page and try again." />
   if (!jobs.some((job) => job.appliedDate)) return <ChartEmpty />
 
   return (
@@ -205,7 +207,7 @@ export const StatisticsPage = () => {
           <span><span className="font-semibold">Data table</span><span className="ml-2 text-sm text-text-muted">Week × role counts</span></span>
           {tableOpen ? <ChevronUp size={18} aria-hidden="true" /> : <ChevronDown size={18} aria-hidden="true" />}
         </button>
-        {tableOpen && <div className="mt-4 overflow-x-auto"><table className="min-w-full text-left text-sm"><caption className="sr-only">Weekly applications by role</caption><thead><tr className="border-b border-border/25 text-text-secondary"><th className="px-3 py-2 font-medium">Week</th>{stats.roles.map((role) => <th key={role.key} className="px-3 py-2 font-medium">{role.name}</th>)}<th className="px-3 py-2 font-medium">Total</th></tr></thead><tbody>{stats.weeks.map((week) => <tr key={week.key} className="border-b border-border/15"><th scope="row" className="px-3 py-2 font-medium">{week.label}</th>{stats.roles.map((role) => <td key={role.key} className="px-3 py-2 text-text-secondary">{week.byRole[role.key] ?? 0}</td>)}<td className="px-3 py-2 font-medium">{week.total}</td></tr>)}</tbody></table></div>}
+        {tableOpen && <div className="mt-4 overflow-x-auto"><table className="data-table min-w-full text-left text-sm"><caption className="sr-only">Weekly applications by role</caption><thead><tr className="border-b border-border/25 text-text-secondary"><th className="px-3 py-2 font-medium">Week</th>{stats.roles.map((role) => <th key={role.key} className="px-3 py-2 font-medium">{role.name}</th>)}<th className="px-3 py-2 font-medium">Total</th></tr></thead><tbody>{stats.weeks.map((week) => <tr key={week.key} className="border-b border-border/15"><th scope="row" className="px-3 py-2 font-medium">{week.label}</th>{stats.roles.map((role) => <td key={role.key} className="px-3 py-2 text-text-secondary">{week.byRole[role.key] ?? 0}</td>)}<td className="px-3 py-2 font-medium">{week.total}</td></tr>)}</tbody></table></div>}
       </Card>
     </div>
   )
