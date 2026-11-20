@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertCircle, ArrowRight, Inbox, Mail } from 'lucide-react'
+import { AlertCircle, ArrowRight, Mail } from 'lucide-react'
+import inboxAnimation from 'react-useanimations/lib/inbox'
 import { Link } from 'react-router-dom'
 import { Badge, Button, Card, EmptyState, Select, Skeleton } from '../components/ui'
 import { listJobs, updateJobReviewState } from '../services/jobs'
@@ -60,7 +61,7 @@ export const NeedsReviewPage = () => {
           <div className="grid gap-3">{captures.map((capture) => <EmailReviewItem key={capture.id} capture={capture} jobs={jobs} />)}</div>
         </section>
       )}
-      {empty && <Card><EmptyState icon={Inbox} title="Nothing needs review" description="Captured applications and forwarded emails that need a decision will appear here." /></Card>}
+      {empty && <Card><EmptyState animation={inboxAnimation} title="Nothing needs review" description="Captured applications and forwarded emails that need a decision will appear here." /></Card>}
     </div>
   )
 }

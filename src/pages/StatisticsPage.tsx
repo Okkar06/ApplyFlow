@@ -12,7 +12,9 @@ import {
   XAxis,
   YAxis,
 } from 'recharts'
-import { BarChart3, BriefcaseBusiness, CalendarDays, ChevronDown, ChevronUp, Percent, TrendingUp } from 'lucide-react'
+import { BriefcaseBusiness, CalendarDays, ChevronDown, ChevronUp, Percent, TrendingUp } from 'lucide-react'
+import alertTriangleAnimation from 'react-useanimations/lib/alertTriangle'
+import barChartAnimation from 'react-useanimations/lib/barChart'
 import { Link } from 'react-router-dom'
 import { Card, EmptyState, Select, Skeleton } from '../components/ui'
 import { listJobs } from '../services/jobs'
@@ -57,7 +59,7 @@ const Stat = ({ label, value, detail, icon: Icon }: { label: string; value: stri
   </Card>
 )
 
-const ChartEmpty = () => <EmptyState icon={BarChart3} title="No statistics yet" description="Add a few applications to see your stats." action={<Link className="text-sm font-medium text-accent hover:text-accent-strong" to="/jobs/new">Add an application</Link>} />
+const ChartEmpty = () => <EmptyState animation={barChartAnimation} title="No statistics yet" description="Add a few applications to see your stats." action={<Link className="text-sm font-medium text-accent hover:text-accent-strong" to="/jobs/new">Add an application</Link>} />
 
 export const StatisticsPage = () => {
   const { data: jobs = [], isLoading, isError } = useQuery({ queryKey: ['jobs'], queryFn: listJobs })
@@ -95,7 +97,7 @@ export const StatisticsPage = () => {
   }
 
   if (isLoading) return <div className="space-y-5"><Skeleton className="h-20" /><Skeleton className="h-96" /><Skeleton className="h-72" /></div>
-  if (isError) return <EmptyState icon={BarChart3} title="Unable to load statistics" description="Refresh the page and try again." />
+  if (isError) return <EmptyState animation={alertTriangleAnimation} title="Unable to load statistics" description="Refresh the page and try again." />
   if (!jobs.some((job) => job.appliedDate)) return <ChartEmpty />
 
   return (

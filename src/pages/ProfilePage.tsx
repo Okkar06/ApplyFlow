@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { Check, Copy, Mail, Settings } from 'lucide-react'
-import { Badge, Button, Card, EmptyState, Skeleton } from '../components/ui'
+import settingsAnimation from 'react-useanimations/lib/settings'
+import copyAnimation from 'react-useanimations/lib/copy'
+import checkmarkAnimation from 'react-useanimations/lib/checkmark'
+import mailAnimation from 'react-useanimations/lib/mail'
+import { AnimatedButton, Badge, Button, Card, EmptyState, Skeleton } from '../components/ui'
+import { AnimatedIcon } from '../components/ui/AnimatedIcon'
 import { createForwardingToken, deactivateForwardingToken, forwardingAddressFor, INGEST_ADDRESS, listForwardingTokens } from '../services/emailCapture'
 
 const formatDate = (value?: string) => (value ? new Date(value).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' }) : 'Never')
@@ -35,7 +39,7 @@ const EmailForwardingCard = () => {
   return (
     <Card>
       <div className="flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/15 text-accent-strong"><Mail size={19} aria-hidden="true" /></div>
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent/15 text-accent-strong"><AnimatedIcon animation={mailAnimation} size={20} interaction="hover" /></div>
         <div className="min-w-0">
           <h2 className="font-semibold text-text-primary">Email forwarding</h2>
           <p className="mt-1 text-sm text-text-secondary">Forward application emails (confirmations, interview invites, rejections) to your private address. JobTrail matches them to your applications and updates the status. It never reads your mailbox.</p>
@@ -49,7 +53,7 @@ const EmailForwardingCard = () => {
           <p className="text-sm font-medium text-text-primary">{INGEST_ADDRESS ? 'Your forwarding address' : 'Your forwarding token'}</p>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             <code className="min-w-0 break-all rounded-lg bg-surface-solid px-2 py-1 text-sm text-text-primary">{shown}</code>
-            <Button type="button" variant="secondary" onClick={() => void copy()} className="flex items-center gap-1.5">{copied ? <Check size={15} aria-hidden="true" /> : <Copy size={15} aria-hidden="true" />}{copied ? 'Copied' : 'Copy'}</Button>
+            <AnimatedButton key={copied ? 'copied' : 'copy'} type="button" variant="secondary" animation={copied ? checkmarkAnimation : copyAnimation} interaction={copied ? 'hover-replay' : 'click-replay'} iconSize={16} onClick={() => void copy()}>{copied ? 'Copied' : 'Copy'}</AnimatedButton>
           </div>
           <p className="mt-2 text-xs text-text-secondary">Save it now. For your security it is stored only as a hash and can't be shown again.</p>
         </div>
@@ -83,6 +87,6 @@ export const ProfilePage = () => (
   <div className="space-y-5">
     <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-strong">Workspace</p><h1 className="mt-1 text-2xl font-semibold text-text-primary">Profile & settings</h1><p className="mt-1 text-sm text-text-secondary">Manage skills, targets, data export, and account settings.</p></div>
     <EmailForwardingCard />
-    <Card><EmptyState icon={Settings} title="More settings are coming next" description="Your profile preferences and data controls will live here." /></Card>
+    <Card><EmptyState animation={settingsAnimation} title="More settings are coming next" description="Your profile preferences and data controls will live here." /></Card>
   </div>
 )

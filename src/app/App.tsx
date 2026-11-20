@@ -12,6 +12,9 @@ import { ContactsPage } from '../pages/ContactsPage'
 import { DocumentsPage } from '../pages/DocumentsPage'
 import { ProfilePage } from '../pages/ProfilePage'
 import { AuthPage } from '../pages/AuthPage'
+import { NotFoundPage, RouteErrorPage } from '../pages/ErrorPage'
+import loadingAnimation from 'react-useanimations/lib/loading'
+import { AnimatedIcon } from '../components/ui/AnimatedIcon'
 import { supabase } from '../lib/supabase'
 import { consumeAuthCallbackParams } from '../lib/authRedirect'
 import type { Session } from '@supabase/supabase-js'
@@ -20,7 +23,13 @@ const router = createHashRouter([
   {
     path: '/',
     element: <AppShell />,
+    // shell itself failed: full-page error
+    errorElement: <main className="grid min-h-screen place-items-center p-4"><RouteErrorPage /></main>,
     children: [
+      {
+        // a page failed: show the error inside the shell so navigation keeps working
+        errorElement: <RouteErrorPage />,
+        children: [
       { index: true, element: <DashboardPage /> },
       { path: 'statistics', element: <StatisticsPage /> },
       { path: 'calendar', element: <CalendarPage /> },
@@ -32,6 +41,9 @@ const router = createHashRouter([
       { path: 'contacts', element: <ContactsPage /> },
       { path: 'documents', element: <DocumentsPage /> },
       { path: 'profile', element: <ProfilePage /> },
+      { path: '*', element: <NotFoundPage /> },
+        ],
+      },
     ],
   },
 ])
@@ -59,7 +71,16 @@ export const App = () => {
     }
   }, [])
 
-  if (loading) return <main className="p-6 text-sm text-text-secondary">Loading...</main>
+  if (loading) {
+    return (
+      <main className="grid min-h-screen place-items-center p-6" aria-busy="true">
+        <div className="flex flex-col items-center gap-3 text-text-secondary">
+          <AnimatedIcon animation={loadingAnimation} size={40} autoplay loop className="text-accent-strong" />
+          <p className="text-sm" role="status">Loading your workspace...</p>
+        </div>
+      </main>
+    )
+  }
   if (!session) return <AuthPage initialError={authError} />
   return <RouterProvider router={router} />
 }

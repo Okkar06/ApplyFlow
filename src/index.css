@@ -251,3 +251,19 @@ textarea:focus-visible {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* react-useanimations: colour rules normally injected at runtime as an inline
+   <style>, which the production CSP blocks. Icons follow currentColor, so they
+   use the theme's semantic text tokens. */
+:where([data-useanimations] path[stroke^='rgb']:not([stroke='rgb(255,255,255)'])) {
+  stroke: var(--ua-stroke, currentColor);
+}
+:where([data-useanimations] path[fill='rgb(0,0,0)']) {
+  fill: var(--ua-fill, var(--ua-stroke, currentColor));
+}
+:where([data-useanimations] path[stroke='rgb(255,255,255)']) {
+  stroke: var(--ua-knockout, rgb(var(--color-surface-solid)));
+}
+:where([data-useanimations] path[fill='rgb(255,255,255)']) {
+  fill: var(--ua-knockout, rgb(var(--color-surface-solid)));
+}

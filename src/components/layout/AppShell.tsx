@@ -1,41 +1,39 @@
 import { useEffect, useMemo, useState } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
-import {
-  BriefcaseBusiness,
-  BarChart3,
-  CalendarDays,
-  Inbox,
-  FileText,
-  LayoutDashboard,
-  Menu,
-  MessageCircle,
-  Plus,
-  Search,
-  Settings,
-  UserRound,
-  X,
-} from 'lucide-react'
-import type { LucideIcon } from 'lucide-react'
+import { Menu, Search, UserRound, X } from 'lucide-react'
+import type { Animation } from 'react-useanimations'
+import home from 'react-useanimations/lib/home'
+import barChart from 'react-useanimations/lib/barChart'
+import calendar from 'react-useanimations/lib/calendar'
+import inbox from 'react-useanimations/lib/inbox'
+import briefcase from 'react-useanimations/lib/briefcase'
+import plusCircle from 'react-useanimations/lib/plusCircle'
+import messageCircle from 'react-useanimations/lib/messageCircle'
+import fileText from 'react-useanimations/lib/fileText'
+import settings from 'react-useanimations/lib/settings'
+import logOut from 'react-useanimations/lib/logOut'
+import { AnimatedControl } from '../ui/AnimatedIcon'
 import { supabase } from '../../lib/supabase'
 import { ThemeToggle } from '../ThemeToggle'
 
 type NavItem = {
   to: string
   label: string
-  icon: LucideIcon
+  icon: Animation
+  end?: boolean
 }
 
 const links: NavItem[] = [
-  { to: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { to: '/statistics', label: 'Statistics', icon: BarChart3 },
-  { to: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { to: '/needs-review', label: 'Needs review', icon: Inbox },
-  { to: '/jobs', label: 'Jobs', icon: BriefcaseBusiness },
-  { to: '/jobs/new', label: 'Add Job', icon: Plus },
-  { to: '/contacts', label: 'Contacts', icon: MessageCircle },
-  { to: '/documents', label: 'Documents', icon: FileText },
-  { to: '/profile', label: 'Profile', icon: Settings },
+  { to: '/', label: 'Dashboard', icon: home, end: true },
+  { to: '/statistics', label: 'Statistics', icon: barChart },
+  { to: '/calendar', label: 'Calendar', icon: calendar },
+  { to: '/needs-review', label: 'Needs review', icon: inbox },
+  { to: '/jobs', label: 'Jobs', icon: briefcase, end: true },
+  { to: '/jobs/new', label: 'Add Job', icon: plusCircle },
+  { to: '/contacts', label: 'Contacts', icon: messageCircle },
+  { to: '/documents', label: 'Documents', icon: fileText },
+  { to: '/profile', label: 'Profile', icon: settings },
 ]
 
 const getGreeting = () => {
@@ -108,20 +106,28 @@ export const AppShell = () => {
           </button>
         </div>
         <nav aria-label="Primary navigation" className="space-y-1.5">
-          {links.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={closeMobileMenu}
-              title={label}
-              className={({ isActive }) => clsx(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/60 md:justify-center lg:justify-start',
-                isActive ? 'bg-accent/15 text-accent-strong shadow-glass1' : 'text-text-secondary hover:bg-surface-elevated/70 hover:text-text-primary',
+          {links.map(({ to, label, icon, end }) => (
+            <AnimatedControl key={to} animation={icon} size={20}>
+              {(eventProps, iconNode) => (
+                <NavLink
+                  {...eventProps}
+                  to={to}
+                  end={end}
+                  onClick={(event) => {
+                    eventProps.onClick(event)
+                    closeMobileMenu()
+                  }}
+                  title={label}
+                  className={({ isActive }) => clsx(
+                    'flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/60 md:justify-center lg:justify-start',
+                    isActive ? 'bg-accent/15 text-accent-strong shadow-glass1' : 'text-text-secondary hover:bg-surface-elevated/70 hover:text-text-primary',
+                  )}
+                >
+                  {iconNode}
+                  <span className="md:hidden lg:inline">{label}</span>
+                </NavLink>
               )}
-            >
-              <Icon size={18} strokeWidth={1.9} aria-hidden="true" />
-              <span className="md:hidden lg:inline">{label}</span>
-            </NavLink>
+            </AnimatedControl>
           ))}
         </nav>
         <div className="mt-auto border-t border-border/25 pt-3">
@@ -132,10 +138,14 @@ export const AppShell = () => {
               <p className="truncate text-xs text-text-muted">{userEmail}</p>
             </div>
           </div>
-          <button type="button" onClick={signOut} className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-text-secondary outline-none hover:bg-surface-elevated hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 md:justify-center lg:justify-start">
-            <UserRound size={17} aria-hidden="true" />
-            <span className="md:hidden lg:inline">Sign out</span>
-          </button>
+          <AnimatedControl animation={logOut} size={19}>
+            {(eventProps, iconNode) => (
+              <button type="button" {...eventProps} onClick={(event) => { eventProps.onClick(event); signOut() }} className="mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm text-text-secondary outline-none hover:bg-surface-elevated hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 md:justify-center lg:justify-start">
+                {iconNode}
+                <span className="md:hidden lg:inline">Sign out</span>
+              </button>
+            )}
+          </AnimatedControl>
         </div>
       </aside>
       <main className="min-w-0 space-y-5">
@@ -158,10 +168,14 @@ export const AppShell = () => {
               <button type="button" aria-label="Search jobs" onClick={() => setMobileSearchOpen((open) => !open)} className="grid size-10 place-items-center rounded-xl border border-border/35 bg-surface-panel/70 text-text-secondary hover:bg-surface-elevated hover:text-text-primary focus-visible:ring-2 focus-visible:ring-accent/60 sm:hidden">
                 <Search size={18} aria-hidden="true" />
               </button>
-              <button type="button" onClick={() => navigate('/jobs/new')} className="hidden h-10 items-center gap-2 rounded-xl bg-accent px-3 text-sm font-semibold text-on-accent shadow-glass1 hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-accent/60 sm:flex">
-                <Plus size={17} aria-hidden="true" />
-                <span className="hidden lg:inline">Add Job</span>
-              </button>
+              <AnimatedControl animation={plusCircle} size={19}>
+                {(eventProps, iconNode) => (
+                  <button type="button" aria-label="Add job" {...eventProps} onClick={(event) => { eventProps.onClick(event); navigate('/jobs/new') }} className="hidden h-10 items-center gap-2 rounded-xl bg-accent px-3 text-sm font-semibold text-on-accent shadow-glass1 hover:bg-accent-strong focus-visible:ring-2 focus-visible:ring-accent/60 sm:flex">
+                    {iconNode}
+                    <span className="hidden lg:inline">Add Job</span>
+                  </button>
+                )}
+              </AnimatedControl>
               <ThemeToggle />
               <div className="relative">
                 <button type="button" aria-label="Open profile menu" aria-expanded={profileOpen} onClick={() => setProfileOpen((open) => !open)} className="grid size-10 place-items-center rounded-full border border-border/35 bg-accent/15 text-xs font-semibold text-accent-strong hover:bg-accent/25 focus-visible:ring-2 focus-visible:ring-accent/60">

@@ -1,7 +1,9 @@
 import { useState, type ButtonHTMLAttributes, type ComponentType, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes, type TextareaHTMLAttributes } from 'react'
 import { X } from 'lucide-react'
 import clsx from 'clsx'
+import type { Animation, Interaction } from 'react-useanimations'
 import type { JobStatus } from '../../types/job'
+import { AnimatedControl, AnimatedIcon } from './AnimatedIcon'
 
 const controlClass = 'control w-full rounded-xl border bg-surface-solid px-3 py-2.5 text-sm text-text-primary outline-none placeholder:text-text-muted focus:border-accent/70 focus:ring-2 focus:ring-accent/20'
 
@@ -17,6 +19,27 @@ export const Button = ({ variant = 'primary', className, ...props }: ButtonHTMLA
       className,
     )}
   />
+)
+
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { variant?: 'primary' | 'secondary' | 'ghost' | 'danger' }
+
+/** Button whose icon animates when the whole button is hovered, focused or clicked. */
+export const AnimatedButton = ({ animation, interaction = 'hover', iconSize = 17, onClick, children, ...props }: ButtonProps & { animation: Animation; interaction?: Interaction; iconSize?: number }) => (
+  <AnimatedControl animation={animation} size={iconSize} interaction={interaction}>
+    {(eventProps, icon) => (
+      <Button
+        {...props}
+        {...eventProps}
+        onClick={(event) => {
+          eventProps.onClick(event)
+          onClick?.(event)
+        }}
+      >
+        {icon}
+        {children}
+      </Button>
+    )}
+  </AnimatedControl>
 )
 
 export const Input = (props: InputHTMLAttributes<HTMLInputElement>) => <input {...props} className={clsx(controlClass, props.className)} />
@@ -42,9 +65,9 @@ export const Badge = ({ status, children }: { status?: JobStatus; children?: Rea
   <span className={clsx('inline-flex items-center rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium', status ? statusClass[status] : 'bg-surface-subtle text-text-secondary')}>{children ?? status}</span>
 )
 
-export const EmptyState = ({ title, description, icon: Icon, action }: { title: string; description: string; icon?: ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>; action?: ReactNode }) => (
-  <div className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border/30 bg-surface-subtle/35 px-5 text-center">
-    {Icon && <Icon size={22} className="text-text-muted" aria-hidden="true" />}
+export const EmptyState = ({ title, description, icon: Icon, animation, action }: { title: string; description: string; icon?: ComponentType<{ size?: number; className?: string; 'aria-hidden'?: boolean | 'true' | 'false' }>; animation?: Animation; action?: ReactNode }) => (
+  <div className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-border/30 bg-surface-subtle/35 px-5 py-6 text-center">
+    {animation ? <AnimatedIcon animation={animation} size={36} interaction="hover-replay" autoplay loop={false} className="text-text-muted" /> : Icon && <Icon size={22} className="text-text-muted" aria-hidden="true" />}
     <h3 className="text-sm font-semibold text-text-primary">{title}</h3>
     <p className="max-w-md text-sm text-text-secondary">{description}</p>
     {action}
